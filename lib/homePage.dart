@@ -1,5 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
+import 'package:tmtdiseases/results.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -100,16 +101,22 @@ class Homepage extends StatelessWidget {
                 ),
               ),
             ),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: 60.0),
+                  padding: const EdgeInsets.only(top: 60.0),
                   child: FloatingActionButton.extended(
-                    onPressed: null,
-                    backgroundColor: Color.fromARGB(255, 34, 177, 106),
-                    label: Text(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Results()),
+                      );
+                    },
+                    backgroundColor: const Color.fromARGB(255, 34, 177, 106),
+                    label: const Text(
                       "Health check",
                       style: TextStyle(fontSize: 30, color: Colors.white),
                     ),
