@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:tmtdiseases/homePage.dart';
-import 'package:tmtdiseases/results.dart';
+import 'package:tmtdiseases/homePage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       //home: Homepage(),
-      home: Results(),
+      home: Homepage(),
     );
   }
 }
