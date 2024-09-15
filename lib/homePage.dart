@@ -9,8 +9,16 @@ class Homepage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('LOGO')),
-        backgroundColor: Colors.green,
+        title: const Center(
+            child: Padding(
+          padding: EdgeInsets.only(bottom: 10.0),
+          child: Image(
+              image: AssetImage(
+                  'assets/image/logo/_Green Simple Nature Beauty Care Initials Logo  (1).png'),
+              width: 100,
+              height: 100),
+        )),
+        backgroundColor: const Color.fromARGB(255, 123, 192, 125),
       ),
       body: SafeArea(
         child: Column(
@@ -20,41 +28,43 @@ class Homepage extends StatelessWidget {
               height: 100,
               width: 350,
               color: const Color.fromARGB(255, 221, 221, 221),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
-                          child: Text(
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                      child: Column(
+                        children: [
+                          Text(
                             "Health Check",
                             style: TextStyle(
                                 fontSize: 30, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        Text(
-                          "Quickly identify diseases",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                      ],
+                          Text(
+                            "Quickly identify diseases",
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(18.0),
-                    child: Column(
+                    Column(
                       children: [
-                        Text(
-                          "Icon",
-                          style: TextStyle(fontSize: 30),
+                        Padding(
+                          padding: EdgeInsets.only(left: 50.0),
+                          child: Image(
+                            image:
+                                AssetImage('assets/image/icons/Picture1.png'),
+                            width: 80,
+                            height: 80,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -63,41 +73,43 @@ class Homepage extends StatelessWidget {
                 height: 100,
                 width: 350,
                 color: const Color.fromARGB(255, 215, 221, 218),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 8.0),
-                            child: Text(
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Column(
+                          children: [
+                            Text(
                               "Treatment",
                               style: TextStyle(
                                   fontSize: 30, fontWeight: FontWeight.bold),
                             ),
-                          ),
-                          Text(
-                            "Treatment for diseases",
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ],
+                            Text(
+                              "Treatment for diseases",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(18.0),
-                      child: Column(
+                      Column(
                         children: [
-                          Text(
-                            "Icon",
-                            style: TextStyle(fontSize: 30),
+                          Padding(
+                            padding: EdgeInsets.only(left: 58.0),
+                            child: Image(
+                              image:
+                                  AssetImage('assets/image/icons/Picture2.png'),
+                              width: 80,
+                              height: 80,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
