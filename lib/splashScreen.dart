@@ -31,7 +31,7 @@ class Splashscreen extends StatelessWidget {
           ],
         ),
         nextScreen: const Homepage(),
-        duration: 16000, // 16 seconds duration as you want
+        duration: 1000, // 16 seconds duration as you want
       ),
     );
   }

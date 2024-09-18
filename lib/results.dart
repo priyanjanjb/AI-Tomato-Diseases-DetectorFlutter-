@@ -92,12 +92,12 @@ class Results extends StatelessWidget {
                             MaterialPageRoute(
                                 builder: (context) => const Chatinterface()));
                       },
-                      label: const Text("Chat With Us",
+                      label: const Text("CHAT BOT",
                           style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                               color: Colors.white)),
-                      backgroundColor: const Color.fromARGB(255, 34, 177, 106),
+                      backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
                     ),
                   ],
                 ),

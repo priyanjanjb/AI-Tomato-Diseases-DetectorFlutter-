@@ -18,7 +18,7 @@ class Homepage extends StatelessWidget {
               width: 100,
               height: 100),
         )),
-        backgroundColor: const Color.fromARGB(255, 123, 192, 125),
+        backgroundColor: const Color.fromRGBO(12, 128, 77, 0.4),
       ),
       body: SafeArea(
         child: Column(
@@ -127,7 +127,7 @@ class Homepage extends StatelessWidget {
                             builder: (context) => const Results()),
                       );
                     },
-                    backgroundColor: const Color.fromARGB(255, 34, 177, 106),
+                    backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
                     label: const Text(
                       "Health check",
                       style: TextStyle(fontSize: 30, color: Colors.white),
@@ -144,7 +144,7 @@ class Homepage extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.home,
-              color: Color.fromARGB(207, 0, 26, 255),
+              color: Color.fromRGBO(18, 7, 141, 1),
               size: 35,
             ),
             label: '',
@@ -152,7 +152,7 @@ class Homepage extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.question_mark_sharp,
-              color: Color.fromARGB(207, 0, 26, 255),
+              color: Color.fromRGBO(18, 7, 141, 1),
               size: 35,
             ),
             label: '',

@@ -1,0 +1,3 @@
+// ignore: constant_identifier_names
+const OPENAI_KEY =
+    "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";
