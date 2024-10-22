@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tmtdiseases/chatInterface.dart';
 import 'package:tmtdiseases/treatment.dart';
 
 class Results extends StatelessWidget {

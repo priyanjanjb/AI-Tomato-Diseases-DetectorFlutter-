@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/camera.dart';
+import 'package:tmtdiseases/chatInterface.dart';
 import 'package:tmtdiseases/results.dart';
 
 class Homepage extends StatelessWidget {
@@ -132,12 +133,12 @@ class Homepage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Results()),
+                            builder: (context) => const Chatinterface()),
                       );
                     },
                     backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
                     label: const Text(
-                      "Health check",
+                      "Chat with Us",
                       style: TextStyle(fontSize: 30, color: Colors.white),
                     ),
                   ),

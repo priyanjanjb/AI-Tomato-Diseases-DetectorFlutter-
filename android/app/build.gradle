@@ -7,7 +7,8 @@ plugins {
 
 android {
     namespace = "com.example.tmtdiseases"
-    compileSdk = flutter.compileSdkVersion
+    
+    compileSdkVersion 34//flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
