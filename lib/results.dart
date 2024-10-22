@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/chatInterface.dart';
+import 'package:tmtdiseases/treatment.dart';
 
 class Results extends StatelessWidget {
   const Results({super.key});
@@ -90,9 +91,9 @@ class Results extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Chatinterface()));
+                                builder: (context) => const Treatment()));
                       },
-                      label: const Text("CHAT BOT",
+                      label: const Text("Treatments",
                           style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
