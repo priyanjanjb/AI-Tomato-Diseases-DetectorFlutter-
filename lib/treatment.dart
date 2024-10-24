@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tmtdiseases/chatInterface.dart';
 
 class Treatment extends StatelessWidget {
   const Treatment({super.key});
@@ -72,6 +73,29 @@ class Treatment extends StatelessWidget {
                   )
                 ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 60.0),
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Chatinterface()),
+                        );
+                      },
+                      backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
+                      label: const Text(
+                        "Chat With Us",
+                        style: TextStyle(fontSize: 30, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),

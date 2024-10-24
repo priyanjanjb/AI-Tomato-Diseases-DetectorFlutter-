@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart'; // Assuming this package is used for saving or displaying the image
+import 'package:image_picker/image_picker.dart';
+import 'package:tmtdiseases/results.dart'; // For picking an image from the gallery
 
 class Camera extends StatefulWidget {
   const Camera({super.key});
@@ -58,6 +60,24 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  // Function to select an image from the gallery
+  Future<void> openGallery() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      // Navigate to the next page with the selected image
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Results(imagePath: image.path),
+        ),
+      );
+    } else {
+      print('No image selected.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,14 +121,11 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
           children: [
             // Gallery Icon Button (Left Side)
             IconButton(
-              onPressed: () {
-                // Add functionality for opening gallery
-                print('Open gallery');
-              },
+              onPressed: openGallery, // Opens the gallery
               icon: const Icon(
                 Icons.collections, // Gallery icon
                 color: Colors.white,
-                size: 40,
+                size: 48,
               ),
             ),
 
@@ -137,7 +154,7 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
                 print('Square icon pressed');
               },
               icon: const Icon(
-                Icons.crop_square, // Square icon
+                Icons.crop_free, // Square icon
                 color: Colors.white,
                 size: 48,
               ),

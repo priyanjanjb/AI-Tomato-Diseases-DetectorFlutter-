@@ -1,8 +1,11 @@
+import 'dart:io'; // To work with File for displaying images
 import 'package:flutter/material.dart';
-import 'package:tmtdiseases/treatment.dart';
+import 'package:tmtdiseases/chatInterface.dart';
 
 class Results extends StatelessWidget {
-  const Results({super.key});
+  final String imagePath;
+
+  const Results({super.key, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +30,18 @@ class Results extends StatelessWidget {
                         height: 250,
                         width: 210,
                         color: const Color.fromARGB(255, 221, 221, 221),
-                        child: const Column(
+                        child: Column(
                           children: [
-                            Text("Results Photo 01"),
+                            
+                            // Image Preview
+                            imagePath.isNotEmpty
+                                ? Image.file(
+                                    File(imagePath),
+                                    height: 250,
+                                    width: 280,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Text('No Image Selected'),
                           ],
                         ),
                       ),
@@ -90,9 +102,9 @@ class Results extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Treatment()));
+                                builder: (context) => const Chatinterface()));
                       },
-                      label: const Text("Treatments",
+                      label: const Text("Chat With Us",
                           style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,

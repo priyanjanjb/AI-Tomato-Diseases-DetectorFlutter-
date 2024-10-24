@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tmtdiseases/camera.dart';
 import 'package:tmtdiseases/chatInterface.dart';
 import 'package:tmtdiseases/results.dart';
+import 'package:tmtdiseases/treatment.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -30,7 +31,8 @@ class Homepage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Camera()),
+                  MaterialPageRoute(
+                      builder: (context) => const Chatinterface()),
                 );
               },
               child: Container(
@@ -78,7 +80,7 @@ class Homepage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Results()),
+                    MaterialPageRoute(builder: (context) => const Treatment()),
                   );
                 },
                 child: Container(
@@ -132,13 +134,12 @@ class Homepage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const Chatinterface()),
+                        MaterialPageRoute(builder: (context) => const Camera()),
                       );
                     },
                     backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
                     label: const Text(
-                      "Chat with Us",
+                      "Health Check",
                       style: TextStyle(fontSize: 30, color: Colors.white),
                     ),
                   ),
