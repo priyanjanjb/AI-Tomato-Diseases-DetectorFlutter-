@@ -1,4 +1,5 @@
-// ignore: file_names
+// ignore_for_file: avoid_print
+
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
@@ -15,15 +16,15 @@ class _ChatinterfaceState extends State<Chatinterface> {
   final openAI = OpenAI.instance.build(
     token: OPENAI_KEY,
     baseOption: HttpSetup(
-      receiveTimeout: const Duration(seconds: 5), // actual request timeout
+      receiveTimeout: const Duration(seconds: 15),
     ),
     enableLog: true,
   );
 
   final ChatUser currentUser = ChatUser(
     id: '1',
-    firstName: 'John',
-    lastName: 'Wick',
+    firstName: 'Test',
+    lastName: 'User',
   );
   final ChatUser gptChatuser = ChatUser(
     id: '2',
@@ -38,11 +39,16 @@ class _ChatinterfaceState extends State<Chatinterface> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
-            child: Text(
-          'Chat Interface',
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        )),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.smart_toy,
+              color: Color.fromARGB(255, 255, 255, 255),
+            ), // Just the icon
+            const SizedBox(width: 10), // Space between the icon and text
+            Text('', style: TextStyle(color: Colors.white)), // Title of the app
+          ],
+        ),
         backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
       ),
       body: DashChat(
@@ -66,7 +72,7 @@ class _ChatinterfaceState extends State<Chatinterface> {
       typingUser.add(gptChatuser); // Show typing indicator
     });
 
-    // Convert messages to a serializable format
+    // Convert messages to a serializable format for the API request
     List<Map<String, dynamic>> messagesHistory = messages.reversed.map((msg) {
       return {
         'role': msg.user == currentUser ? 'user' : 'assistant',
@@ -81,12 +87,15 @@ class _ChatinterfaceState extends State<Chatinterface> {
         maxToken: 200,
       );
 
+      print("Sending request to OpenAI...");
       final response = await openAI.onChatCompletion(request: request);
+      print("Received response from OpenAI: ${response.toString()}");
 
       if (response != null) {
-        // Check if the response is received properly
+        // Process and display the response messages
         for (var element in response.choices) {
-          if (element.message != null) {
+          if (element.message != null && element.message!.content.isNotEmpty) {
+            print("GPT Response: ${element.message!.content}");
             setState(() {
               messages.insert(
                 0,
@@ -97,19 +106,30 @@ class _ChatinterfaceState extends State<Chatinterface> {
               );
             });
           } else {
-            debugPrint("Received a null message from GPT response.");
+            print("Received empty or null message from GPT.");
           }
         }
       } else {
-        debugPrint("Received null response from GPT API.");
+        print("Received null response from GPT API.");
       }
     } catch (e) {
-      // If there is an error, log it
-      debugPrint("Error in fetching response: $e");
+      // Log the error and show an error message in the chat
+      print("Error in fetching response: $e");
+      setState(() {
+        messages.insert(
+          0,
+          ChatMessage(
+            user: gptChatuser,
+            createdAt: DateTime.now(),
+            text: "Error: Unable to fetch response. Please try again.",
+          ),
+        );
+      });
     }
 
+    // Remove typing indicator after response is processed
     setState(() {
-      typingUser.remove(gptChatuser); // Remove typing indicator
+      typingUser.remove(gptChatuser);
     });
   }
 }

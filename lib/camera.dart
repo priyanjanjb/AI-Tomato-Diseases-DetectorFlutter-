@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart'; // Assuming this package is used for saving or displaying the image
@@ -68,6 +70,7 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
     if (image != null) {
       // Navigate to the next page with the selected image
       Navigator.push(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => Results(imagePath: image.path),
@@ -85,6 +88,7 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
 
       // Navigate to the Results page with the captured image
       Navigator.push(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => Results(imagePath: picture.path),
@@ -151,9 +155,10 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
 
             // Camera Capture Icon Button (Center)
             IconButton(
-              onPressed: captureImage, // Captures the image and navigates to Results
+              onPressed:
+                  captureImage, // Captures the image and navigates to Results
               icon: const Icon(
-                Icons.adjust,
+                Icons.radio_button_on,
                 color: Colors.white,
                 size: 48,
               ),
@@ -166,7 +171,7 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
                 print('Square icon pressed');
               },
               icon: const Icon(
-                Icons.crop_free, // Square icon
+                Icons.photo_size_select_small, // Square icon
                 color: Colors.white,
                 size: 48,
               ),
