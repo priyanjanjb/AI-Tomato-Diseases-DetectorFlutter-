@@ -1,5 +1,4 @@
 allprojects {
-    ext.kotlin_version = '1.8.22' // Define the Kotlin version here
     repositories {
         google()
         mavenCentral()
@@ -9,8 +8,6 @@ allprojects {
 rootProject.buildDir = file("../build")
 subprojects {
     project.buildDir = file("${rootProject.buildDir}/${project.name}")
-}
-subprojects {
     project.evaluationDependsOn(":app")
 }
 

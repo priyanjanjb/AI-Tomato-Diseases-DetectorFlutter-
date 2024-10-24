@@ -71,35 +71,79 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
         child: CircularProgressIndicator(),
       );
     }
-    return SafeArea(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Center(
-            // Centering the camera preview
-            child: SizedBox(
-              height: 500,
-              width: 300, // Adjust width to fit within your layout
-              child: CameraPreview(cameraController!),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Camera'),
+        backgroundColor: Colors.black,
+      ),
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: Flexible(
+                child: AspectRatio(
+                  aspectRatio: 3 / 4.77, // Maintains the camera aspect ratio
+                  child: CameraPreview(cameraController!),
+                ),
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () async {
-              try {
-                XFile picture = await cameraController!.takePicture();
-                Gal.putImage(picture
-                    .path); // Save or handle the image using the 'Gal' package
-              } catch (e) {
-                print('Error capturing image: $e');
-              }
-            },
-            icon: const Icon(
-              Icons.camera_alt,
-              color: Colors.red,
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: Colors.black, // Setting background color to black
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween, // Space between icons
+          children: [
+            // Gallery Icon Button (Left Side)
+            IconButton(
+              onPressed: () {
+                // Add functionality for opening gallery
+                print('Open gallery');
+              },
+              icon: const Icon(
+                Icons.collections, // Gallery icon
+                color: Colors.white,
+                size: 40,
+              ),
             ),
-          ),
-        ],
+
+            // Camera Capture Icon Button (Center)
+            IconButton(
+              onPressed: () async {
+                try {
+                  XFile picture = await cameraController!.takePicture();
+                  Gal.putImage(
+                      picture.path); // Save the image using the 'Gal' package
+                } catch (e) {
+                  print('Error capturing image: $e');
+                }
+              },
+              icon: const Icon(
+                Icons.adjust,
+                color: Colors.white,
+                size: 48,
+              ),
+            ),
+
+            // Square Icon Button (Right Side)
+            IconButton(
+              onPressed: () {
+                // Add functionality for square action
+                print('Square icon pressed');
+              },
+              icon: const Icon(
+                Icons.crop_square, // Square icon
+                color: Colors.white,
+                size: 48,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
