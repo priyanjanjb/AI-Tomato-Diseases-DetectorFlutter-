@@ -2,7 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart'; // Assuming this package is used for saving or displaying the image
 import 'package:image_picker/image_picker.dart';
-import 'package:tmtdiseases/results.dart'; // For picking an image from the gallery
+import 'package:tmtdiseases/results.dart'; // Import Results page
 
 class Camera extends StatefulWidget {
   const Camera({super.key});
@@ -78,6 +78,26 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
     }
   }
 
+  // Function to capture an image and navigate to the results page
+  Future<void> captureImage() async {
+    try {
+      XFile picture = await cameraController!.takePicture();
+
+      // Navigate to the Results page with the captured image
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Results(imagePath: picture.path),
+        ),
+      );
+
+      // Optionally save the image using 'Gal' package
+      Gal.putImage(picture.path);
+    } catch (e) {
+      print('Error capturing image: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,15 +151,7 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
 
             // Camera Capture Icon Button (Center)
             IconButton(
-              onPressed: () async {
-                try {
-                  XFile picture = await cameraController!.takePicture();
-                  Gal.putImage(
-                      picture.path); // Save the image using the 'Gal' package
-                } catch (e) {
-                  print('Error capturing image: $e');
-                }
-              },
+              onPressed: captureImage, // Captures the image and navigates to Results
               icon: const Icon(
                 Icons.adjust,
                 color: Colors.white,

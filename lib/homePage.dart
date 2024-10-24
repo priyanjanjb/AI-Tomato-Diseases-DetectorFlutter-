@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/camera.dart';
 import 'package:tmtdiseases/chatInterface.dart';
-import 'package:tmtdiseases/results.dart';
 import 'package:tmtdiseases/treatment.dart';
 
 class Homepage extends StatelessWidget {
