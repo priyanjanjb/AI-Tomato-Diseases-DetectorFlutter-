@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: file_names, avoid_print
 
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';

@@ -1,6 +1,6 @@
 import 'dart:io'; // To work with File for displaying images
 import 'package:flutter/material.dart';
-import 'package:tmtdiseases/chatInterface.dart';
+import 'package:tmtdiseases/treatment.dart';
 
 class Results extends StatelessWidget {
   final String imagePath;
@@ -32,7 +32,6 @@ class Results extends StatelessWidget {
                         color: const Color.fromARGB(255, 221, 221, 221),
                         child: Column(
                           children: [
-                            
                             // Image Preview
                             imagePath.isNotEmpty
                                 ? Image.file(
@@ -102,9 +101,9 @@ class Results extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Chatinterface()));
+                                builder: (context) => const Treatment()));
                       },
-                      label: const Text("Chat With Us",
+                      label: const Text("Treatment",
                           style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
