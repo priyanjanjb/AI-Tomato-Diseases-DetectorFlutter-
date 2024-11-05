@@ -80,6 +80,7 @@ flutter:
     - assets/image/logo/
     - assets/animation/
     - assets/model/model.tflite
+    - assets/model/label.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
