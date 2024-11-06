@@ -16,13 +16,7 @@ class Chatinterface extends StatefulWidget {
 }
 
 class _ChatinterfaceState extends State<Chatinterface> {
-  final openAI = OpenAI.instance.build(
-    token: OPENAI_KEY,
-    baseOption: HttpSetup(
-      receiveTimeout: const Duration(seconds: 30), // Increased timeout
-    ),
-    enableLog: true,
-  );
+  late final OpenAI openAI;
 
   final ChatUser currentUser = ChatUser(
     id: '1',
@@ -39,6 +33,20 @@ class _ChatinterfaceState extends State<Chatinterface> {
   List<ChatUser> typingUser = <ChatUser>[];
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize OpenAI instance with proper configuration
+    openAI = OpenAI.instance.build(
+      token: OPENAI_KEY,
+      baseOption: HttpSetup(
+        receiveTimeout: const Duration(seconds: 30), // Increased timeout
+        connectTimeout: const Duration(seconds: 10),
+      ),
+      enableLog: true,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -46,10 +54,10 @@ class _ChatinterfaceState extends State<Chatinterface> {
           children: [
             const Icon(
               Icons.smart_toy,
-              color: Color.fromARGB(255, 255, 255, 255),
+              color: Colors.white,
             ),
             const SizedBox(width: 10),
-            Text('', style: TextStyle(color: Colors.white)),
+            const Text('Chat with GPT', style: TextStyle(color: Colors.white)),
           ],
         ),
         backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
@@ -75,73 +83,92 @@ class _ChatinterfaceState extends State<Chatinterface> {
       typingUser.add(gptChatuser); // Show typing indicator
     });
 
-    // Limit message history to the last 10 messages (adjust as needed)
-    List<Map<String, dynamic>> messagesHistory =
-        messages.reversed.take(10).map((msg) {
-      return {
-        'role': msg.user == currentUser ? 'user' : 'assistant',
-        'content': msg.text,
-      };
-    }).toList();
+    // Create a message history with a maximum of 10 entries
+    final List<Map<String, dynamic>> messagesHistory = messages.reversed
+        .take(10)
+        .map((msg) => {
+              'role': msg.user == currentUser ? 'user' : 'assistant',
+              'content': msg.text,
+            })
+        .toList();
 
     try {
       final request = ChatCompleteText(
-        model: GptTurbo0301ChatModel(),
+        model: Gpt40314ChatModel(), // Use the correct model name
         messages: messagesHistory,
         maxToken: 200,
       );
 
       print("Sending request to OpenAI...");
       final response = await openAI.onChatCompletion(request: request);
-      print("Received response from OpenAI: ${response.toString()}");
 
-      if (response != null) {
-        for (var element in response.choices) {
-          if (element.message != null && element.message!.content.isNotEmpty) {
-            print("GPT Response: ${element.message!.content}");
-            setState(() {
-              messages.insert(
-                0,
-                ChatMessage(
-                    user: gptChatuser,
-                    createdAt: DateTime.now(),
-                    text: element.message!.content),
-              );
-            });
-          } else {
-            print("Received empty or null message from GPT.");
-          }
+      if (response != null && response.choices.isNotEmpty) {
+        final String? gptResponse = response.choices.first.message?.content;
+        if (gptResponse != null && gptResponse.isNotEmpty) {
+          print("GPT Response: $gptResponse");
+          setState(() {
+            messages.insert(
+              0,
+              ChatMessage(
+                user: gptChatuser,
+                createdAt: DateTime.now(),
+                text: gptResponse,
+              ),
+            );
+          });
+        } else {
+          print("Received empty or null message from GPT.");
+          _handleEmptyResponse();
         }
       } else {
-        print("Received null response from GPT API.");
+        print("Received null or empty response from GPT API.");
+        _handleEmptyResponse();
       }
     } catch (e) {
       print("Error in fetching response: $e");
-
-      // Log specific exceptions
-      if (e is HttpException) {
-        print("HTTP Error: ${e.message}");
-      } else if (e is TimeoutException) {
-        print("Timeout Error: ${e.message}");
-      } else if (e is Exception) {
-        print("General Error: ${e.toString()}");
-      }
-
+      _handleException(e);
+    } finally {
       setState(() {
-        messages.insert(
-          0,
-          ChatMessage(
-            user: gptChatuser,
-            createdAt: DateTime.now(),
-            text: "Error: Unable to fetch response. Please try again.",
-          ),
-        );
+        typingUser.remove(gptChatuser);
       });
     }
+  }
 
-    // Remove typing indicator after response is processed
+  void _handleEmptyResponse() {
     setState(() {
-      typingUser.remove(gptChatuser);
+      messages.insert(
+        0,
+        ChatMessage(
+          user: gptChatuser,
+          createdAt: DateTime.now(),
+          text: "I didn't receive a proper response. Please try again.",
+        ),
+      );
+    });
+  }
+
+  void _handleException(Object e) {
+    String errorMessage = "An error occurred. Please try again.";
+    if (e is HttpException) {
+      errorMessage = "HTTP Error: ${e.message}";
+      if (e.message.contains('404')) {
+        errorMessage =
+            "Error 404: Resource not found. Please check the API endpoint and configuration.";
+      }
+    } else if (e is TimeoutException) {
+      errorMessage = "Timeout Error: Please check your connection.";
+    } else {
+      errorMessage = "General Error: ${e.toString()}";
+    }
+    setState(() {
+      messages.insert(
+        0,
+        ChatMessage(
+          user: gptChatuser,
+          createdAt: DateTime.now(),
+          text: errorMessage,
+        ),
+      );
     });
   }
 }

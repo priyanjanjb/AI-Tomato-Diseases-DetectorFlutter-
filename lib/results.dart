@@ -1,7 +1,7 @@
 import 'dart:io'; // To work with File for displaying images
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/treatment.dart';
-import 'package:tflite/tflite.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 
 class Results extends StatefulWidget {
   final String imagePath;
@@ -13,6 +13,7 @@ class Results extends StatefulWidget {
 }
 
 class _ResultsState extends State<Results> {
+  Interpreter? _interpreter;
   List<dynamic>? _predictions;
   bool _isLoading = true;
 
@@ -108,32 +109,42 @@ class _ResultsState extends State<Results> {
     runModelOnImage();
   }
 
-  // Load the model
+  // Load the model using tflite_flutter package
   Future<void> loadModel() async {
-    String? result = await Tflite.loadModel(
-      model: "assets/model.tflite", // Replace with your model path
-      labels: "assets/labels.txt", // Replace with your labels path
-    );
-    print("Model loaded: $result");
+    try {
+      _interpreter = await Interpreter.fromAsset('assets/model.tflite');
+      print("Model loaded successfully.");
+    } catch (e) {
+      print("Error loading model: $e");
+    }
   }
 
   // Run the model on the image and get predictions
   Future<void> runModelOnImage() async {
-    var predictions = await Tflite.runModelOnImage(
-      path: widget.imagePath, // Path to the image
-      imageMean: 0.0, // Defaults to 0.0; set based on your model
-      imageStd: 255.0, // Defaults to 255.0; set based on your model
-      numResults: 3, // Limit the number of results
-      threshold: 0.5, // Confidence threshold
-    );
+    if (_interpreter == null) return;
+
+    // Preprocess the image to match the model input requirements
+    var inputImage = await processImage(widget.imagePath);
+    var output = List.filled(1 * 2, 0).reshape([1, 2]);
+
+    _interpreter!.run(inputImage, output);
 
     setState(() {
-      _predictions = predictions;
+      _predictions = output;
       _isLoading = false;
     });
 
-    // Debugging: Print the predictions to check the model output
     print("Predictions: $_predictions");
+  }
+
+  // Helper function to process the image for inference
+  Future<List<List<double>>> processImage(String imagePath) async {
+    // Implement image preprocessing to match your model's input
+    // This should resize the image and normalize it as per model requirements
+    // Example: Assuming input is a 1x5 list
+    return [
+      [1.23, 6.54, 7.81, 3.21, 2.22]
+    ]; // Placeholder data
   }
 
   @override
@@ -148,7 +159,6 @@ class _ResultsState extends State<Results> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              // Display the selected image
               Padding(
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: Row(
@@ -170,8 +180,6 @@ class _ResultsState extends State<Results> {
                   ],
                 ),
               ),
-
-              // Loading indicator or result display
               _isLoading
                   ? const CircularProgressIndicator()
                   : _predictions != null && _predictions!.isNotEmpty
@@ -180,20 +188,17 @@ class _ResultsState extends State<Results> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Display prediction label and confidence
                               Text(
-                                "Prediction: ${_predictions![0]['label']}",
+                                "Prediction: ${_predictions![0]}",
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 25),
                               ),
                               Text(
-                                "Confidence: ${(_predictions![0]['confidence'] * 100).toStringAsFixed(2)}%",
+                                "Confidence: ${(_predictions![1] * 100).toStringAsFixed(2)}%",
                               ),
                               const SizedBox(height: 10),
-
-                              // Check if the prediction label exists in the diseaseDetails map
                               if (diseaseDetails
-                                  .containsKey(_predictions![0]['label']))
+                                  .containsKey(_predictions![0].toString()))
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -204,7 +209,7 @@ class _ResultsState extends State<Results> {
                                           fontSize: 20),
                                     ),
                                     Text(diseaseDetails[_predictions![0]
-                                        ['label']]?['description']),
+                                        .toString()]?['description']),
                                     const SizedBox(height: 10),
                                     Text(
                                       "Causes:",
@@ -212,8 +217,8 @@ class _ResultsState extends State<Results> {
                                           fontWeight: FontWeight.bold,
                                           fontSize: 20),
                                     ),
-                                    ...diseaseDetails[_predictions![0]['label']]
-                                            ?['causes']
+                                    ...diseaseDetails[_predictions![0]
+                                            .toString()]?['causes']
                                         .map<Widget>(
                                             (cause) => Text("- $cause"))
                                         .toList(),
@@ -227,8 +232,6 @@ class _ResultsState extends State<Results> {
                         )
                       : const Text(
                           "No disease detected or low confidence in results."),
-
-              // Treatment button
               Padding(
                 padding: const EdgeInsets.only(top: 35.0),
                 child: Row(
@@ -260,7 +263,7 @@ class _ResultsState extends State<Results> {
 
   @override
   void dispose() {
-    Tflite.close();
+    _interpreter?.close();
     super.dispose();
   }
 }

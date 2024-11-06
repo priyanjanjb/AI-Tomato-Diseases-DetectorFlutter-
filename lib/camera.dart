@@ -75,7 +75,10 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
         MaterialPageRoute(
           builder: (context) => Results(imagePath: image.path),
         ),
-      );
+      ).then((_) {
+        // Stop the camera after navigating
+        cameraController?.dispose();
+      });
     } else {
       print('No image selected.');
     }
@@ -93,7 +96,10 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
         MaterialPageRoute(
           builder: (context) => Results(imagePath: picture.path),
         ),
-      );
+      ).then((_) {
+        // Stop the camera after navigating
+        cameraController?.dispose();
+      });
 
       // Optionally save the image using 'Gal' package
       Gal.putImage(picture.path);
