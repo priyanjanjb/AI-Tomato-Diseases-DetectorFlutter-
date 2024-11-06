@@ -1,9 +1,9 @@
-import 'dart:io'; // To work with File for displaying images
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/treatment.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
-import 'dart:typed_data'; // For working with byte arrays
+import 'dart:typed_data';
 
 class Results extends StatefulWidget {
   final String imagePath;
@@ -19,7 +19,6 @@ class _ResultsState extends State<Results> {
   bool _isLoading = true;
   late Interpreter _interpreter;
 
-  // Map holding the disease details
   final Map<String, Map<String, dynamic>> diseaseDetails = {
     "Late Blight": {
       "description":
@@ -106,41 +105,34 @@ class _ResultsState extends State<Results> {
 
   List<String> diseaseLabels = [
     "Late Blight",
-    "Target Spot",
-    "Tomato Yellow Leaf Curl Virus",
-    "Tomato Mosaic Virus",
-    "Early Blight",
-    "Spider Mites (Two-Spotted Spider Mite)",
-    "Leaf Mold",
-    "Septoria Leaf Spot",
-    "Bacterial Spot"
+    // Add other labels...
   ];
 
   @override
   void initState() {
     super.initState();
-    loadModel(); // Load the model when the page is initialized
-    runModelOnImage(); // Run the model on the image
+    loadModel();
+    runModelOnImage();
   }
 
-  // Load the model and check if it's loaded correctly
   Future<void> loadModel() async {
     try {
-      // Load the model from assets
       _interpreter =
           await Interpreter.fromAsset('assets/model/tomatodiseas.tflite');
       print("Model loaded successfully.");
     } catch (e) {
       print("Error loading model: $e");
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  // Run the model on the image and get predictions
   Future<void> runModelOnImage() async {
     var inputImage = File(widget.imagePath).readAsBytesSync();
     var input = await _preprocessImage(inputImage);
 
-    var output = List<double>.filled(10, 0.0); // Assuming 10 classes
+    var output = List<double>.filled(10, 0.0);
     try {
       _interpreter.run(input, output);
       print("Inference result: $output");
@@ -156,30 +148,28 @@ class _ResultsState extends State<Results> {
       });
     } catch (e) {
       print("Error running inference: $e");
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  // Preprocess image for model inference
   Future<List<List<List<double>>>> _preprocessImage(
       List<int> imageBytes) async {
-    // Load the image and resize it
     img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
     if (image == null) {
       return List.generate(
           1, (_) => List.generate(224, (_) => List.generate(224, (_) => 0.0)));
     }
 
-    img.Image resizedImage = img.copyResize(image,
-        width: 224, height: 224); // Adjust size as per model input requirements
-
-    // Normalize the image (example: normalize values between 0 and 1)
+    img.Image resizedImage = img.copyResize(image, width: 224, height: 224);
     List<List<List<double>>> normalizedImage = List.generate(224, (i) {
       return List.generate(224, (j) {
         int pixel = resizedImage.getPixel(j, i) as int;
         return [
-          (pixel & 0xFF) / 255.0, // Red channel
-          ((pixel >> 8) & 0xFF) / 255.0, // Green channel
-          ((pixel >> 16) & 0xFF) / 255.0 // Blue channel
+          (pixel & 0xFF) / 255.0,
+          ((pixel >> 8) & 0xFF) / 255.0,
+          ((pixel >> 16) & 0xFF) / 255.0
         ];
       });
     });
@@ -189,98 +179,94 @@ class _ResultsState extends State<Results> {
 
   @override
   Widget build(BuildContext context) {
+    // Default values
+    final String defaultDiseaseName = "No Disease Detected";
+    final String defaultConfidence = "0.00";
+    final String defaultDescription = "No description available.";
+    final List<String> defaultCauses = ["No known causes available."];
+
+// Use prediction data or default values
+    final String diseaseName = _predictions != null && _predictions!.isNotEmpty
+        ? _predictions![0].toString()
+        : defaultDiseaseName;
+
+    final String confidence = _predictions != null && _predictions!.isNotEmpty
+        ? (100 * (_predictions![1] as double)).toStringAsFixed(2)
+        : defaultConfidence;
+
+// Get the disease description, or use the default if not found
+    final String description = diseaseDetails.containsKey(diseaseName)
+        ? (diseaseDetails[diseaseName]?['description'] ?? defaultDescription)
+        : defaultDescription;
+
+// Get the disease causes list, or use the default if not found
+    final List<String> causes = diseaseDetails.containsKey(diseaseName)
+        ? List<String>.from(
+            diseaseDetails[diseaseName]?['causes'] ?? defaultCauses)
+        : defaultCauses;
+
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Results')),
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: Colors.white,
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              // Display the selected image
               Padding(
                 padding: const EdgeInsets.only(bottom: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: 250,
-                      width: 210,
-                      color: const Color.fromARGB(255, 221, 221, 221),
-                      child: widget.imagePath.isNotEmpty
-                          ? Image.file(
-                              File(widget.imagePath),
-                              height: 250,
-                              width: 280,
-                              fit: BoxFit.cover,
-                            )
-                          : const Text('No Image Selected'),
-                    ),
-                  ],
+                child: Container(
+                  height: 250,
+                  width: 210,
+                  color: Colors.grey[300],
+                  child: widget.imagePath.isNotEmpty
+                      ? Image.file(
+                          File(widget.imagePath),
+                          height: 250,
+                          width: 210,
+                          fit: BoxFit.cover,
+                        )
+                      : const Center(child: Text('No Image Selected')),
                 ),
               ),
-
-              // Display loading indicator or result
               _isLoading
-                  ? const CircularProgressIndicator() // Loading indicator while predictions are being processed
-                  : _predictions != null && _predictions!.isNotEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Display the prediction label and confidence
-                              Text(
-                                "Prediction: ${_predictions![0]}",
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 25),
-                              ),
-                              Text(
-                                "Confidence: ${(100 * _predictions![1]).toStringAsFixed(2)}%",
-                              ),
-                              const SizedBox(height: 10),
-                              // Display disease details
-                              if (diseaseDetails
-                                  .containsKey(_predictions![0].toString()))
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Description:",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                    ),
-                                    Text(diseaseDetails[_predictions![0]
-                                            .toString()]?['description'] ??
-                                        'No description available'),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      "Causes:",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                    ),
-                                    ...diseaseDetails[_predictions![0]
-                                                .toString()]?['causes']
-                                            .map<Widget>(
-                                                (cause) => Text("- $cause"))
-                                            .toList() ??
-                                        [],
-                                  ],
-                                )
-                              else
-                                const Text(
-                                    "Details not found for this disease."),
-                            ],
+                  ? const CircularProgressIndicator()
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Prediction: $diseaseName",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 25),
                           ),
-                        )
-                      : const Text(
-                          "No disease detected or low confidence in results."),
-
-              // Treatment button
+                          Text(
+                            "Confidence: $confidence%",
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Description:",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          Text(
+                            description,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Causes:",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          ...causes.map((cause) => Text("- $cause")),
+                        ],
+                      ),
+                    ),
               Padding(
                 padding: const EdgeInsets.only(top: 35.0),
                 child: Row(
@@ -292,7 +278,7 @@ class _ResultsState extends State<Results> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => Treatment(
-                              disease: _predictions?[0] ?? "Unknown Disease",
+                              disease: diseaseName,
                             ),
                           ),
                         );

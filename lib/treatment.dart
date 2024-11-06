@@ -35,20 +35,19 @@ class Treatment extends StatelessWidget {
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 25),
                           ),
-                          const Text(
-                              "Lorem Ipsum is simply dummy text of the printing and typesetting industry."),
+                          Text(disease),
                           Divider(
                             color: Colors.grey,
                             thickness: 1,
                           ),
-                          const Text("Conventional Treatment:",
-                              style: TextStyle(
+                          Text("Conventional Treatment: $disease",
+                              style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 25,
                                   color: Color.fromRGBO(16, 26, 173, 1))),
                           const ListBody(
                             children: [
-                              Text("Lorem Ipsum is simply dummy text of "),
+                              Text("Not detected yet"),
                             ],
                           ),
                           Divider(
@@ -57,14 +56,14 @@ class Treatment extends StatelessWidget {
                             indent: 20,
                             endIndent: 20,
                           ),
-                          const Text("Organic Treatment:",
-                              style: TextStyle(
+                          Text("Organic Treatment: $disease",
+                              style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 25,
                                   color: Color.fromRGBO(16, 26, 173, 1))),
                           const ListBody(
                             children: [
-                              Text("Lorem Ipsum is simply dummy text of "),
+                              Text("Not detected yet"),
                             ],
                           ),
                         ],
