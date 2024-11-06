@@ -13,11 +13,10 @@ class Results extends StatefulWidget {
 }
 
 class _ResultsState extends State<Results> {
-  List<dynamic>? _predictions; // To store predictions from the model
-  bool _isLoading =
-      true; // To show loading indicator while predictions are being processed
+  List<dynamic>? _predictions;
+  bool _isLoading = true;
 
-  // A map of disease details to be displayed for each disease
+  // Map holding the disease details
   final Map<String, Map<String, dynamic>> diseaseDetails = {
     "Late Blight": {
       "description":
@@ -37,46 +36,104 @@ class _ResultsState extends State<Results> {
         "Overcrowded planting leads to reduced airflow."
       ]
     },
-    // ... (Other diseases go here)
+    "Tomato Yellow Leaf Curl Virus": {
+      "description":
+          "A viral disease causing yellowing and curling of leaves, stunted growth, and reduced fruit production.",
+      "causes": [
+        "Transmission by whiteflies.",
+        "Presence of infected plants nearby.",
+        "Poor pest management."
+      ]
+    },
+    "Tomato Mosaic Virus": {
+      "description":
+          "A viral infection causing mottled or mosaic patterns on leaves, distorted fruit, and stunted growth.",
+      "causes": [
+        "Handling infected plants.",
+        "Contaminated tools or hands.",
+        "Seed-borne transmission."
+      ]
+    },
+    "Early Blight": {
+      "description":
+          "A fungal disease-causing brown spots with concentric rings on older leaves, eventually leading to leaf drops and fruit rot.",
+      "causes": [
+        "Overhead watering.",
+        "Warm, wet conditions.",
+        "Infected plant debris left in the soil."
+      ]
+    },
+    "Spider Mites (Two-Spotted Spider Mite)": {
+      "description":
+          "Tiny pests that cause yellowing, speckled leaves, and fine webbing, eventually leading to leaf drop.",
+      "causes": [
+        "Hot, dry conditions.",
+        "Lack of natural predators.",
+        "Dusty, unclean growing environments."
+      ]
+    },
+    "Leaf Mold": {
+      "description":
+          "A fungal disease causing pale green or yellow spots on the upper leaf surface, with velvety gray mold underneath.",
+      "causes": [
+        "High humidity and poor ventilation.",
+        "Water splashing on leaves.",
+        "Infected plant material."
+      ]
+    },
+    "Septoria Leaf Spot": {
+      "description":
+          "Fungal disease causing small, circular spots with gray centers and dark borders on leaves, leading to early defoliation.",
+      "causes": [
+        "Warm, wet weather.",
+        "Infected seeds or plants.",
+        "Water splashing from the soil onto leaves."
+      ]
+    },
+    "Bacterial Spot": {
+      "description":
+          "A bacterial disease that causes small, water-soaked spots on leaves and fruits, leading to leaf yellowing and fruit blemishes.",
+      "causes": [
+        "Contaminated seeds or transplants.",
+        "Warm, wet conditions.",
+        "Splashing water from rain or irrigation."
+      ]
+    }
   };
 
   @override
   void initState() {
     super.initState();
-    loadModel(); // Load the model when the widget is initialized
-    runModelOnImage(); // Run the model on the image once initialized
+    loadModel();
+    runModelOnImage();
   }
 
-  // Load the model from assets
+  // Load the model
   Future<void> loadModel() async {
-    // Try loading the model and print the result for debugging
     String? result = await Tflite.loadModel(
-      model: "assets/model.tflite", // Path to your model
-      labels: "assets/labels.txt", // Path to your labels file
+      model: "assets/model.tflite", // Replace with your model path
+      labels: "assets/labels.txt", // Replace with your labels path
     );
-    print("Model loaded: $result"); // Ensure the model is loaded successfully
+    print("Model loaded: $result");
   }
 
-  // Run the model on the selected image to make predictions
+  // Run the model on the image and get predictions
   Future<void> runModelOnImage() async {
-    // Ensure the image path is correct and accessible
     var predictions = await Tflite.runModelOnImage(
       path: widget.imagePath, // Path to the image
-      imageMean:
-          0.0, // Mean normalization (Adjust based on your model's requirement)
-      imageStd:
-          255.0, // Standard deviation normalization (Adjust based on your model)
-      numResults: 3, // Number of results to return
-      threshold: 0.5, // Confidence threshold for predictions
+      imageMean: 0.0, // Defaults to 0.0; set based on your model
+      imageStd: 255.0, // Defaults to 255.0; set based on your model
+      numResults: 3, // Limit the number of results
+      threshold: 0.5, // Confidence threshold
     );
 
-    print("Predictions: $predictions"); // Print predictions for debugging
-
-    // Update the state with predictions once the model has run
     setState(() {
-      _predictions = predictions; // Store predictions
-      _isLoading = false; // Hide loading spinner once predictions are available
+      _predictions = predictions;
+      _isLoading = false;
     });
+
+    // Debugging: Print the predictions to check the model output
+    print("Predictions: $_predictions");
   }
 
   @override
@@ -91,6 +148,7 @@ class _ResultsState extends State<Results> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
+              // Display the selected image
               Padding(
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: Row(
@@ -102,26 +160,27 @@ class _ResultsState extends State<Results> {
                       color: const Color.fromARGB(255, 221, 221, 221),
                       child: widget.imagePath.isNotEmpty
                           ? Image.file(
-                              File(widget
-                                  .imagePath), // Display the selected image
+                              File(widget.imagePath),
                               height: 250,
                               width: 280,
                               fit: BoxFit.cover,
                             )
-                          : const Text(
-                              'No Image Selected'), // Handle case when no image is selected
+                          : const Text('No Image Selected'),
                     ),
                   ],
                 ),
               ),
+
+              // Loading indicator or result display
               _isLoading
-                  ? const CircularProgressIndicator() // Show loading indicator if still loading
+                  ? const CircularProgressIndicator()
                   : _predictions != null && _predictions!.isNotEmpty
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Display prediction label and confidence
                               Text(
                                 "Prediction: ${_predictions![0]['label']}",
                                 style: const TextStyle(
@@ -131,7 +190,8 @@ class _ResultsState extends State<Results> {
                                 "Confidence: ${(_predictions![0]['confidence'] * 100).toStringAsFixed(2)}%",
                               ),
                               const SizedBox(height: 10),
-                              // Display disease details if predictions are available
+
+                              // Check if the prediction label exists in the diseaseDetails map
                               if (diseaseDetails
                                   .containsKey(_predictions![0]['label']))
                                 Column(
@@ -161,12 +221,14 @@ class _ResultsState extends State<Results> {
                                 )
                               else
                                 const Text(
-                                    "Details not found for this disease."), // If disease details are not found
+                                    "Details not found for this disease."),
                             ],
                           ),
                         )
                       : const Text(
-                          "No disease detected or low confidence in results."), // If no predictions
+                          "No disease detected or low confidence in results."),
+
+              // Treatment button
               Padding(
                 padding: const EdgeInsets.only(top: 35.0),
                 child: Row(
@@ -174,7 +236,6 @@ class _ResultsState extends State<Results> {
                   children: [
                     FloatingActionButton.extended(
                       onPressed: () {
-                        // Navigate to treatment page if available
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -189,7 +250,7 @@ class _ResultsState extends State<Results> {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -199,7 +260,6 @@ class _ResultsState extends State<Results> {
 
   @override
   void dispose() {
-    // Close the TFLite model when the widget is disposed
     Tflite.close();
     super.dispose();
   }

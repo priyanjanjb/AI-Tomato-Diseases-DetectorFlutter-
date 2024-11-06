@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/camera.dart';
-import 'package:tmtdiseases/chatInterface.dart';
 import 'package:tmtdiseases/treatment.dart';
 
 class Homepage extends StatelessWidget {
@@ -31,8 +30,7 @@ class Homepage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const Chatinterface()),
+                  MaterialPageRoute(builder: (context) => const Camera()),
                 );
               },
               child: Container(

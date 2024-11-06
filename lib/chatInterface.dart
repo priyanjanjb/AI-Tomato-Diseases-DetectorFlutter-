@@ -1,5 +1,8 @@
 // ignore_for_file: file_names, avoid_print
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +19,7 @@ class _ChatinterfaceState extends State<Chatinterface> {
   final openAI = OpenAI.instance.build(
     token: OPENAI_KEY,
     baseOption: HttpSetup(
-      receiveTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 30), // Increased timeout
     ),
     enableLog: true,
   );
@@ -44,9 +47,9 @@ class _ChatinterfaceState extends State<Chatinterface> {
             const Icon(
               Icons.smart_toy,
               color: Color.fromARGB(255, 255, 255, 255),
-            ), // Just the icon
-            const SizedBox(width: 10), // Space between the icon and text
-            Text('', style: TextStyle(color: Colors.white)), // Title of the app
+            ),
+            const SizedBox(width: 10),
+            Text('', style: TextStyle(color: Colors.white)),
           ],
         ),
         backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
@@ -72,8 +75,9 @@ class _ChatinterfaceState extends State<Chatinterface> {
       typingUser.add(gptChatuser); // Show typing indicator
     });
 
-    // Convert messages to a serializable format for the API request
-    List<Map<String, dynamic>> messagesHistory = messages.reversed.map((msg) {
+    // Limit message history to the last 10 messages (adjust as needed)
+    List<Map<String, dynamic>> messagesHistory =
+        messages.reversed.take(10).map((msg) {
       return {
         'role': msg.user == currentUser ? 'user' : 'assistant',
         'content': msg.text,
@@ -92,7 +96,6 @@ class _ChatinterfaceState extends State<Chatinterface> {
       print("Received response from OpenAI: ${response.toString()}");
 
       if (response != null) {
-        // Process and display the response messages
         for (var element in response.choices) {
           if (element.message != null && element.message!.content.isNotEmpty) {
             print("GPT Response: ${element.message!.content}");
@@ -113,8 +116,17 @@ class _ChatinterfaceState extends State<Chatinterface> {
         print("Received null response from GPT API.");
       }
     } catch (e) {
-      // Log the error and show an error message in the chat
       print("Error in fetching response: $e");
+
+      // Log specific exceptions
+      if (e is HttpException) {
+        print("HTTP Error: ${e.message}");
+      } else if (e is TimeoutException) {
+        print("Timeout Error: ${e.message}");
+      } else if (e is Exception) {
+        print("General Error: ${e.toString()}");
+      }
+
       setState(() {
         messages.insert(
           0,
