@@ -115,7 +115,8 @@ class _ResultsState extends State<Results> {
   Future<void> loadModel() async {
     try {
       // Load the model from assets
-      _interpreter = await Interpreter.fromAsset('assets/tomatodiseas.tflite');
+      _interpreter =
+          await Interpreter.fromAsset('assets/model/tomatodiseas.tflite');
       print("Model loaded successfully.");
     } catch (e) {
       print("Error loading model: $e");
