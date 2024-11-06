@@ -2,6 +2,8 @@ import 'dart:io'; // To work with File for displaying images
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/treatment.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:image/image.dart' as img;
+import 'dart:typed_data'; // For working with byte arrays
 
 class Results extends StatefulWidget {
   final String imagePath;
@@ -13,9 +15,9 @@ class Results extends StatefulWidget {
 }
 
 class _ResultsState extends State<Results> {
-  Interpreter? _interpreter;
   List<dynamic>? _predictions;
   bool _isLoading = true;
+  late Interpreter _interpreter;
 
   // Map holding the disease details
   final Map<String, Map<String, dynamic>> diseaseDetails = {
@@ -109,10 +111,11 @@ class _ResultsState extends State<Results> {
     runModelOnImage();
   }
 
-  // Load the model using tflite_flutter package
+  // Load the model and check if it's loaded correctly
   Future<void> loadModel() async {
     try {
-      _interpreter = await Interpreter.fromAsset('assets/model.tflite');
+      // Load the model from assets
+      _interpreter = await Interpreter.fromAsset('assets/tomatodiseas.tflite');
       print("Model loaded successfully.");
     } catch (e) {
       print("Error loading model: $e");
@@ -121,30 +124,52 @@ class _ResultsState extends State<Results> {
 
   // Run the model on the image and get predictions
   Future<void> runModelOnImage() async {
-    if (_interpreter == null) return;
+    var inputImage = File(widget.imagePath).readAsBytesSync();
+    var input = await _preprocessImage(inputImage);
 
-    // Preprocess the image to match the model input requirements
-    var inputImage = await processImage(widget.imagePath);
-    var output = List.filled(1 * 2, 0).reshape([1, 2]);
+    // Prepare output buffer (example size, adjust as needed)
+    var output = List<double>.filled(2, 0.0).reshape([1, 2]);
 
-    _interpreter!.run(inputImage, output);
+    try {
+      // Perform inference
+      _interpreter.run(input, output);
+      print("Inference result: $output");
 
-    setState(() {
-      _predictions = output;
-      _isLoading = false;
-    });
-
-    print("Predictions: $_predictions");
+      setState(() {
+        _predictions = output;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Error running inference: $e");
+    }
   }
 
-  // Helper function to process the image for inference
-  Future<List<List<double>>> processImage(String imagePath) async {
-    // Implement image preprocessing to match your model's input
-    // This should resize the image and normalize it as per model requirements
-    // Example: Assuming input is a 1x5 list
-    return [
-      [1.23, 6.54, 7.81, 3.21, 2.22]
-    ]; // Placeholder data
+  // Preprocess image for model inference
+  Future<List<List<List<double>>>> _preprocessImage(
+      List<int> imageBytes) async {
+    // Load the image and resize it
+    img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
+    if (image == null) {
+      return List.generate(
+          1, (_) => List.generate(224, (_) => List.generate(224, (_) => 0.0)));
+    }
+
+    img.Image resizedImage = img.copyResize(image,
+        width: 224, height: 224); // Adjust size as per model input requirements
+
+    // Normalize the image (example: normalize values between 0 and 1)
+    List<List<List<double>>> normalizedImage = List.generate(224, (i) {
+      return List.generate(224, (j) {
+        int pixel = resizedImage.getPixel(j, i) as int;
+        return [
+          (pixel & 0xFF) / 255.0, // Red channel
+          ((pixel >> 8) & 0xFF) / 255.0, // Green channel
+          ((pixel >> 16) & 0xFF) / 255.0 // Blue channel
+        ];
+      });
+    });
+
+    return normalizedImage;
   }
 
   @override
@@ -159,6 +184,7 @@ class _ResultsState extends State<Results> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
+              // Display the selected image
               Padding(
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: Row(
@@ -180,6 +206,8 @@ class _ResultsState extends State<Results> {
                   ],
                 ),
               ),
+
+              // Loading indicator or result display
               _isLoading
                   ? const CircularProgressIndicator()
                   : _predictions != null && _predictions!.isNotEmpty
@@ -188,15 +216,18 @@ class _ResultsState extends State<Results> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Display prediction label and confidence
                               Text(
                                 "Prediction: ${_predictions![0]}",
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 25),
                               ),
                               Text(
-                                "Confidence: ${(_predictions![1] * 100).toStringAsFixed(2)}%",
+                                "Confidence: ${(100 * _predictions![1]).toStringAsFixed(2)}%",
                               ),
                               const SizedBox(height: 10),
+
+                              // Check if the prediction label exists in the diseaseDetails map
                               if (diseaseDetails
                                   .containsKey(_predictions![0].toString()))
                                 Column(
@@ -218,10 +249,11 @@ class _ResultsState extends State<Results> {
                                           fontSize: 20),
                                     ),
                                     ...diseaseDetails[_predictions![0]
-                                            .toString()]?['causes']
-                                        .map<Widget>(
-                                            (cause) => Text("- $cause"))
-                                        .toList(),
+                                                .toString()]?['causes']
+                                            .map<Widget>(
+                                                (cause) => Text("- $cause"))
+                                            .toList() ??
+                                        [],
                                   ],
                                 )
                               else
@@ -232,6 +264,8 @@ class _ResultsState extends State<Results> {
                         )
                       : const Text(
                           "No disease detected or low confidence in results."),
+
+              // Treatment button
               Padding(
                 padding: const EdgeInsets.only(top: 35.0),
                 child: Row(
@@ -263,7 +297,7 @@ class _ResultsState extends State<Results> {
 
   @override
   void dispose() {
-    _interpreter?.close();
+    _interpreter.close();
     super.dispose();
   }
 }
