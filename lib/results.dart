@@ -119,8 +119,8 @@ class _ResultsState extends State<Results> {
   @override
   void initState() {
     super.initState();
-    loadModel();
-    runModelOnImage();
+    loadModel(); // Load the model when the page is initialized
+    runModelOnImage(); // Run the model on the image
   }
 
   // Load the model and check if it's loaded correctly
@@ -140,17 +140,14 @@ class _ResultsState extends State<Results> {
     var inputImage = File(widget.imagePath).readAsBytesSync();
     var input = await _preprocessImage(inputImage);
 
-    var output =
-        List<double>.filled(10, 0.0); // Assuming 10 classes, adjust as needed
+    var output = List<double>.filled(10, 0.0); // Assuming 10 classes
     try {
       _interpreter.run(input, output);
       print("Inference result: $output");
 
-      // Get the index of the class with the highest probability
       var predictedClassIndex =
           output.indexOf(output.reduce((a, b) => a > b ? a : b));
-      var predictedLabel = diseaseLabels[
-          predictedClassIndex]; // diseaseLabels should be an array of class labels
+      var predictedLabel = diseaseLabels[predictedClassIndex];
       var confidence = output[predictedClassIndex];
 
       setState(() {
@@ -227,14 +224,14 @@ class _ResultsState extends State<Results> {
 
               // Display loading indicator or result
               _isLoading
-                  ? const CircularProgressIndicator()
+                  ? const CircularProgressIndicator() // Loading indicator while predictions are being processed
                   : _predictions != null && _predictions!.isNotEmpty
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Display prediction label and confidence
+                              // Display the prediction label and confidence
                               Text(
                                 "Prediction: ${_predictions![0]}",
                                 style: const TextStyle(
@@ -244,7 +241,6 @@ class _ResultsState extends State<Results> {
                                 "Confidence: ${(100 * _predictions![1]).toStringAsFixed(2)}%",
                               ),
                               const SizedBox(height: 10),
-
                               // Display disease details
                               if (diseaseDetails
                                   .containsKey(_predictions![0].toString()))
@@ -292,20 +288,22 @@ class _ResultsState extends State<Results> {
                   children: [
                     FloatingActionButton.extended(
                       onPressed: () {
-                        // Navigate to treatment screen with the disease label
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Treatment(
-                                disease: _predictions?[0] ?? "Unknown Disease"),
+                              disease: _predictions?[0] ?? "Unknown Disease",
+                            ),
                           ),
                         );
                       },
-                      label: const Text("Treatment",
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
+                      label: const Text(
+                        "Treatment",
+                        style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
                       backgroundColor: const Color.fromRGBO(12, 128, 77, 0.8),
                     ),
                   ],
