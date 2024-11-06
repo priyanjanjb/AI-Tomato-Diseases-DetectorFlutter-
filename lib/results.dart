@@ -104,6 +104,18 @@ class _ResultsState extends State<Results> {
     }
   };
 
+  List<String> diseaseLabels = [
+    "Late Blight",
+    "Target Spot",
+    "Tomato Yellow Leaf Curl Virus",
+    "Tomato Mosaic Virus",
+    "Early Blight",
+    "Spider Mites (Two-Spotted Spider Mite)",
+    "Leaf Mold",
+    "Septoria Leaf Spot",
+    "Bacterial Spot"
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -128,16 +140,21 @@ class _ResultsState extends State<Results> {
     var inputImage = File(widget.imagePath).readAsBytesSync();
     var input = await _preprocessImage(inputImage);
 
-    // Prepare output buffer (example size, adjust as needed)
-    var output = List<double>.filled(2, 0.0).reshape([1, 2]);
-
+    var output =
+        List<double>.filled(10, 0.0); // Assuming 10 classes, adjust as needed
     try {
-      // Perform inference
       _interpreter.run(input, output);
       print("Inference result: $output");
 
+      // Get the index of the class with the highest probability
+      var predictedClassIndex =
+          output.indexOf(output.reduce((a, b) => a > b ? a : b));
+      var predictedLabel = diseaseLabels[
+          predictedClassIndex]; // diseaseLabels should be an array of class labels
+      var confidence = output[predictedClassIndex];
+
       setState(() {
-        _predictions = output;
+        _predictions = [predictedLabel, confidence];
         _isLoading = false;
       });
     } catch (e) {
@@ -208,7 +225,7 @@ class _ResultsState extends State<Results> {
                 ),
               ),
 
-              // Loading indicator or result display
+              // Display loading indicator or result
               _isLoading
                   ? const CircularProgressIndicator()
                   : _predictions != null && _predictions!.isNotEmpty
@@ -228,7 +245,7 @@ class _ResultsState extends State<Results> {
                               ),
                               const SizedBox(height: 10),
 
-                              // Check if the prediction label exists in the diseaseDetails map
+                              // Display disease details
                               if (diseaseDetails
                                   .containsKey(_predictions![0].toString()))
                                 Column(
@@ -241,7 +258,8 @@ class _ResultsState extends State<Results> {
                                           fontSize: 20),
                                     ),
                                     Text(diseaseDetails[_predictions![0]
-                                        .toString()]?['description']),
+                                            .toString()]?['description'] ??
+                                        'No description available'),
                                     const SizedBox(height: 10),
                                     Text(
                                       "Causes:",
@@ -274,10 +292,14 @@ class _ResultsState extends State<Results> {
                   children: [
                     FloatingActionButton.extended(
                       onPressed: () {
+                        // Navigate to treatment screen with the disease label
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Treatment()));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Treatment(
+                                disease: _predictions?[0] ?? "Unknown Disease"),
+                          ),
+                        );
                       },
                       label: const Text("Treatment",
                           style: TextStyle(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:tmtdiseases/chatInterface.dart';
 
 class Treatment extends StatelessWidget {
-  const Treatment({super.key});
+  final String disease;
+
+  const Treatment({super.key, required this.disease});
 
   @override
   Widget build(BuildContext context) {
@@ -16,66 +18,63 @@ class Treatment extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              const Row(
+              Row(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: SizedBox(
                       width: 345,
-                      child: Column(children: [
-                        Divider(
-                          color: Colors.grey, // Line color
-                          thickness: 1, // Line thickness
-                        ),
-                        Text(
-                          "Treatment for Bacterial Spot",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 25),
-                        ),
-                        Text(
-                            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged."),
-                        Divider(
-                          color: Colors.grey, // Line color
-                          thickness: 1, // Line thickness
-                        ),
-                        Text("Conventional Treatment:",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
-                                color: Color.fromRGBO(16, 26, 173, 1))),
-                        ListBody(
-                          children: [
-                            Text("Lorem Ipsum is simply dummy text of "),
-                            Text("Lorem Ipsum is simply dummy text of "),
-                            Text("Lorem Ipsum is simply dummy text of "),
-                          ],
-                        ),
-                        Divider(
-                          color: Colors.grey, // Line color
-                          thickness: 1, // Line thickness
-                          indent: 20, // Left margin
-                          endIndent: 20, // Right margin
-                        ),
-                        Text("Organic Treatment:",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
-                                color: Color.fromRGBO(16, 26, 173, 1))),
-                        ListBody(
-                          children: [
-                            Text("Lorem Ipsum is simply dummy text of "),
-                            Text("Lorem Ipsum is simply dummy text of "),
-                            Text("Lorem Ipsum is simply dummy text of "),
-                          ],
-                        )
-                      ]),
+                      child: Column(
+                        children: [
+                          Divider(
+                            color: Colors.grey,
+                            thickness: 1,
+                          ),
+                          Text(
+                            "Treatment for $disease", // Display the disease dynamically
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 25),
+                          ),
+                          const Text(
+                              "Lorem Ipsum is simply dummy text of the printing and typesetting industry."),
+                          Divider(
+                            color: Colors.grey,
+                            thickness: 1,
+                          ),
+                          const Text("Conventional Treatment:",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25,
+                                  color: Color.fromRGBO(16, 26, 173, 1))),
+                          const ListBody(
+                            children: [
+                              Text("Lorem Ipsum is simply dummy text of "),
+                            ],
+                          ),
+                          Divider(
+                            color: Colors.grey,
+                            thickness: 1,
+                            indent: 20,
+                            endIndent: 20,
+                          ),
+                          const Text("Organic Treatment:",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25,
+                                  color: Color.fromRGBO(16, 26, 173, 1))),
+                          const ListBody(
+                            children: [
+                              Text("Lorem Ipsum is simply dummy text of "),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 60.0),
@@ -95,7 +94,7 @@ class Treatment extends StatelessWidget {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

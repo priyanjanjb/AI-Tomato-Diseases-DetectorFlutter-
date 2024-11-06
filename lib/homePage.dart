@@ -78,7 +78,10 @@ class Homepage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Treatment()),
+                    MaterialPageRoute(
+                        builder: (context) => Treatment(
+                              disease: '',
+                            )),
                   );
                 },
                 child: Container(
