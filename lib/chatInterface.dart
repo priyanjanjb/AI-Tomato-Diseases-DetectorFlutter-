@@ -92,44 +92,65 @@ class _ChatinterfaceState extends State<Chatinterface> {
             })
         .toList();
 
-    try {
-      final request = ChatCompleteText(
-        model: Gpt40314ChatModel(), // Use the correct model name
-        messages: messagesHistory,
-        maxToken: 200,
-      );
+    int retryCount = 0;
+    const int maxRetries = 3;
 
-      print("Sending request to OpenAI...");
-      final response = await openAI.onChatCompletion(request: request);
+    while (retryCount < maxRetries) {
+      try {
+        final request = ChatCompleteText(
+          model: GptTurbo0631Model(), // Ensure the correct model is used
+          messages: messagesHistory,
+          maxToken: 200,
+        );
 
-      if (response != null && response.choices.isNotEmpty) {
-        final String? gptResponse = response.choices.first.message?.content;
-        if (gptResponse != null && gptResponse.isNotEmpty) {
-          print("GPT Response: $gptResponse");
-          setState(() {
-            messages.insert(
-              0,
-              ChatMessage(
-                user: gptChatuser,
-                createdAt: DateTime.now(),
-                text: gptResponse,
-              ),
-            );
-          });
+        print("Sending request to OpenAI...");
+        final response = await openAI.onChatCompletion(request: request);
+
+        if (response != null && response.choices.isNotEmpty) {
+          final String? gptResponse = response.choices.first.message?.content;
+          if (gptResponse != null && gptResponse.isNotEmpty) {
+            print("GPT Response: $gptResponse");
+            setState(() {
+              messages.insert(
+                0,
+                ChatMessage(
+                  user: gptChatuser,
+                  createdAt: DateTime.now(),
+                  text: gptResponse,
+                ),
+              );
+            });
+            return; // Exit loop after successful response
+          } else {
+            print("Received empty or null message from GPT.");
+            _handleEmptyResponse();
+            return;
+          }
         } else {
-          print("Received empty or null message from GPT.");
+          print("Received null or empty response from GPT API.");
           _handleEmptyResponse();
+          return;
         }
-      } else {
-        print("Received null or empty response from GPT API.");
-        _handleEmptyResponse();
+      } catch (e) {
+        if (e is HttpException && e.message.contains('429')) {
+          print("Rate limit exceeded. Retrying...");
+          retryCount++;
+          await Future.delayed(
+              Duration(seconds: 2 * retryCount)); // Exponential backoff
+        } else {
+          print("Error in fetching response: $e");
+          _handleException(e);
+          break; // Exit after non-rate-limit error
+        }
       }
-    } catch (e) {
-      print("Error in fetching response: $e");
-      _handleException(e);
-    } finally {
+    }
+
+    // If max retries are reached
+    if (retryCount == maxRetries) {
+      _handleException("Max retries reached. Please try again later.");
+    } else {
       setState(() {
-        typingUser.remove(gptChatuser);
+        typingUser.remove(gptChatuser); // Ensure typing indicator is removed
       });
     }
   }
@@ -157,6 +178,8 @@ class _ChatinterfaceState extends State<Chatinterface> {
       }
     } else if (e is TimeoutException) {
       errorMessage = "Timeout Error: Please check your connection.";
+    } else if (e is SocketException) {
+      errorMessage = "Network Error: Please check your internet connection.";
     } else {
       errorMessage = "General Error: ${e.toString()}";
     }

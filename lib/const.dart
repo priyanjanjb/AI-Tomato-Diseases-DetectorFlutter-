@@ -1,3 +1,3 @@
 // ignore: constant_identifier_names
 const OPENAI_KEY =
-    "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";
+    "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";
