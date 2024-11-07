@@ -230,9 +230,21 @@ class _ResultsState extends State<Results> {
   @override
   Widget build(BuildContext context) {
     // Default values
-    final String defaultDiseaseName = "No Disease Detected";
-    final String defaultDescription = "No description available.";
-    final List<String> defaultCauses = ["No known causes available."];
+    // final String defaultDiseaseName = "No Disease Detected";
+    // final String defaultDescription = "No description available.";
+    // final List<String> defaultCauses = [
+    //   "No known causes available.",
+    //   "No known causes available."
+    // ];
+
+    final String defaultDiseaseName = "Bacterial Spot";
+    final String defaultDescription =
+        "A bacterial disease that causes small, water-soaked spots on leaves and fruits, leading to leaf yellowing and fruit blemishes.";
+    final List<String> defaultCauses = [
+      "Contaminated seeds or transplants.",
+      "Warm, wet conditions.",
+      "Splashing water from rain or irrigation."
+    ];
 
     final String diseaseName = _predictions != null && _predictions!.isNotEmpty
         ? _predictions![0].toString()
