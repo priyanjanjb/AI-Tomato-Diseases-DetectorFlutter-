@@ -68,7 +68,6 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      // Navigate to the next page with the selected image
       Navigator.push(
         // ignore: use_build_context_synchronously
         context,
