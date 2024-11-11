@@ -11,7 +11,6 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-   // ext.kotlin_version = '1.6.0' // Update to the latest version you found
     namespace = "com.example.tmtdiseases"
     compileSdkVersion 34 //flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -47,9 +46,6 @@ signingConfigs {
     }
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now,
-            // so `flutter run --release` works.
             signingConfig = signingConfigs.debug
             signingConfig = signingConfigs.release
         }
@@ -60,8 +56,10 @@ signingConfigs {
     }
 
     dependencies{
-        implementation 'org.tensorflow:tensorflow-lite:+'
-        implementation 'org.tensorflow:tensorflow-lite-gpu:+'
+        implementation 'org.tensorflow:tensorflow-lite:2.16.1'
+        implementation 'org.tensorflow:tensorflow-lite-gpu:2.16.1'
+        implementation "androidx.lifecycle:lifecycle-viewmodel:2.4.0"
+
     }
 
 

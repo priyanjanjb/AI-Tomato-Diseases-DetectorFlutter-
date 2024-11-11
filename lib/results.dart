@@ -35,6 +35,78 @@ class _ResultsState extends State<Results> {
   ];
 
   final Map<String, Map<String, dynamic>> diseaseDetails = {
+    "Late Blight": {
+      "description":
+          "A fungal disease that causes dark, water-soaked spots on leaves and fruits, eventually leading to plant death.",
+      "causes": [
+        "Prolonged wet or humid conditions.",
+        "Poor air circulation around plants.",
+        "Infected seeds or transplants."
+      ]
+    },
+    "Target Spot": {
+      "description":
+          "Dark, sunken lesions with concentric rings on leaves and fruits, causing premature leaf drop.",
+      "causes": [
+        "Warm, moist weather.",
+        "Poor sanitation of plant debris.",
+        "Overcrowded planting leads to reduced airflow."
+      ]
+    },
+    "Tomato Yellow Leaf Curl Virus": {
+      "description":
+          "A viral disease causing yellowing and curling of leaves, stunted growth, and reduced fruit production.",
+      "causes": [
+        "Transmission by whiteflies.",
+        "Presence of infected plants nearby.",
+        "Poor pest management."
+      ]
+    },
+    "Tomato Mosaic Virus": {
+      "description":
+          "A viral infection causing mottled or mosaic patterns on leaves, distorted fruit, and stunted growth.",
+      "causes": [
+        "Handling infected plants.",
+        "Contaminated tools or hands.",
+        "Seed-borne transmission."
+      ]
+    },
+    "Early Blight": {
+      "description":
+          "A fungal disease-causing brown spots with concentric rings on older leaves, eventually leading to leaf drops and fruit rot.",
+      "causes": [
+        "Overhead watering.",
+        "Warm, wet conditions.",
+        "Infected plant debris left in the soil."
+      ]
+    },
+    "Spider Mites (Two-Spotted Spider Mite)": {
+      "description":
+          "Tiny pests that cause yellowing, speckled leaves, and fine webbing, eventually leading to leaf drop.",
+      "causes": [
+        "Hot, dry conditions.",
+        "Lack of natural predators.",
+        "Dusty, unclean growing environments."
+      ]
+    },
+    "Leaf Mold": {
+      "description":
+          "A fungal disease causing pale green or yellow spots on the upper leaf surface, with velvety gray mold underneath.",
+      "causes": [
+        "High humidity and poor ventilation.",
+        "Water splashing on leaves.",
+        "Infected plant material."
+      ]
+    },
+    "Septoria Leaf Spot": {
+      "description":
+          "Fungal disease causing small, circular spots with gray centers and dark borders on leaves, leading to early defoliation.",
+      "causes": [
+        "Warm, wet weather.",
+        "Infected seeds or plants.",
+        "Water splashing from the soil onto leaves."
+      ]
+    },
     "Bacterial Spot": {
       "description":
           "A bacterial disease that causes small, water-soaked spots on leaves and fruits, leading to leaf yellowing and fruit blemishes.",
@@ -44,7 +116,11 @@ class _ResultsState extends State<Results> {
         "Splashing water from rain or irrigation."
       ]
     },
-    // Add remaining details...
+    "Healthy": {
+      "description":
+          "The plant appears to be healthy with no signs of disease.",
+      "causes": ["N/A"]
+    }
   };
 
   @override
@@ -83,11 +159,15 @@ class _ResultsState extends State<Results> {
         return;
       }
 
-      var output = List<double>.filled(diseaseLabels.length, 0.0);
+      // Define output with shape [1, 10]
+      var output = List<List<double>>.filled(1, List<double>.filled(10, 0.0));
+
+      // Run inference with the input and output buffer
       _interpreter.run(input, output);
 
+      // Access the predicted class index from output[0]
       var predictedClassIndex =
-          output.indexOf(output.reduce((a, b) => a > b ? a : b));
+          output[0].indexOf(output[0].reduce((a, b) => a > b ? a : b));
       var predictedLabel = diseaseLabels[predictedClassIndex];
 
       setState(() {
@@ -100,30 +180,56 @@ class _ResultsState extends State<Results> {
     }
   }
 
-  Future<List<List<List<double>>>> _preprocessImage(
+  // Preprocess image to extract RGB values properly
+  Future<List<List<List<List<double>>>>> _preprocessImage(
       List<int> imageBytes) async {
-    img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
-    if (image == null) {
-      print("Failed to decode image.");
+    try {
+      // Decode the image from bytes
+      img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
+      if (image == null) {
+        print("Failed to decode image.");
+        return List.generate(
+            1,
+            (_) => List.generate(
+                256,
+                (_) =>
+                    List.generate(256, (_) => List.generate(3, (_) => 0.0))));
+      }
+      // Resize the image to the target size (256x256)
+      img.Image resizedImage = img.copyResize(image, width: 256, height: 256);
+
+      // Normalize pixel data
+      List<List<List<List<double>>>> normalizedImage = List.generate(
+        1,
+        (batchIndex) => List.generate(
+          256,
+          (i) => List.generate(
+            256,
+            (j) {
+              // Retrieve the RGB value from the pixel
+              int rgb = resizedImage.getPixel(j, i) as int;
+
+              // Extract and normalize RGB values from the pixel
+              double red = ((rgb >> 16) & 0xFF) / 255.0;
+              double green = ((rgb >> 8) & 0xFF) / 255.0;
+              double blue = (rgb & 0xFF) / 255.0;
+
+              // Return the normalized RGB values as a list for this pixel
+              return [red, green, blue];
+            },
+          ),
+        ),
+      );
+
+      return normalizedImage; // Returning the full normalized image with batch dimension
+    } catch (e) {
+      print("Error during image preprocessing: $e");
+      // Return a default image in case of error
       return List.generate(
-          1, (_) => List.generate(256, (_) => List.generate(256, (_) => 0.0)));
+          1,
+          (_) => List.generate(256,
+              (_) => List.generate(256, (_) => List.generate(3, (_) => 0.0))));
     }
-
-    img.Image resizedImage = img.copyResize(image, width: 256, height: 256);
-
-    List<List<List<double>>> normalizedImage = List.generate(256, (i) {
-      return List.generate(256, (j) {
-        int pixel = resizedImage.getPixel(j, i) as int;
-
-        double red = ((pixel >> 16) & 0xFF) / 255.0;
-        double green = ((pixel >> 8) & 0xFF) / 255.0;
-        double blue = (pixel & 0xFF) / 255.0;
-
-        return [red, green, blue];
-      });
-    });
-
-    return normalizedImage;
   }
 
   @override
