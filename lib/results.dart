@@ -35,6 +35,24 @@ class _ResultsState extends State<Results> {
   ];
 
   final Map<String, Map<String, dynamic>> diseaseDetails = {
+    "Bacterial Spot": {
+      "description":
+          "A bacterial disease that causes small, water-soaked spots on leaves and fruits, leading to leaf yellowing and fruit blemishes.",
+      "causes": [
+        "Contaminated seeds or transplants.",
+        "Warm, wet conditions.",
+        "Splashing water from rain or irrigation."
+      ]
+    },
+    "Early Blight": {
+      "description":
+          "A fungal disease-causing brown spots with concentric rings on older leaves, eventually leading to leaf drops and fruit rot.",
+      "causes": [
+        "Overhead watering.",
+        "Warm, wet conditions.",
+        "Infected plant debris left in the soil."
+      ]
+    },
     "Late Blight": {
       "description":
           "A fungal disease that causes dark, water-soaked spots on leaves and fruits, eventually leading to plant death.",
@@ -42,6 +60,33 @@ class _ResultsState extends State<Results> {
         "Prolonged wet or humid conditions.",
         "Poor air circulation around plants.",
         "Infected seeds or transplants."
+      ]
+    },
+    "Leaf Mold": {
+      "description":
+          "A fungal disease causing pale green or yellow spots on the upper leaf surface, with velvety gray mold underneath.",
+      "causes": [
+        "High humidity and poor ventilation.",
+        "Water splashing on leaves.",
+        "Infected plant material."
+      ]
+    },
+    "Septoria Leaf Spot": {
+      "description":
+          "Fungal disease causing small, circular spots with gray centers and dark borders on leaves, leading to early defoliation.",
+      "causes": [
+        "Warm, wet weather.",
+        "Infected seeds or plants.",
+        "Water splashing from the soil onto leaves."
+      ]
+    },
+    "Spider Mites (Two-Spotted Spider Mite)": {
+      "description":
+          "Tiny pests that cause yellowing, speckled leaves, and fine webbing, eventually leading to leaf drop.",
+      "causes": [
+        "Hot, dry conditions.",
+        "Lack of natural predators.",
+        "Dusty, unclean growing environments."
       ]
     },
     "Target Spot": {
@@ -71,55 +116,13 @@ class _ResultsState extends State<Results> {
         "Seed-borne transmission."
       ]
     },
-    "Early Blight": {
-      "description":
-          "A fungal disease-causing brown spots with concentric rings on older leaves, eventually leading to leaf drops and fruit rot.",
+    "healthy": {
+      "description": "The plant is healthy and free from any diseases.",
       "causes": [
-        "Overhead watering.",
-        "Warm, wet conditions.",
-        "Infected plant debris left in the soil."
+        "No known causes available.",
+        "Keep up the good work!",
+        "Continue to monitor plant health."
       ]
-    },
-    "Spider Mites (Two-Spotted Spider Mite)": {
-      "description":
-          "Tiny pests that cause yellowing, speckled leaves, and fine webbing, eventually leading to leaf drop.",
-      "causes": [
-        "Hot, dry conditions.",
-        "Lack of natural predators.",
-        "Dusty, unclean growing environments."
-      ]
-    },
-    "Leaf Mold": {
-      "description":
-          "A fungal disease causing pale green or yellow spots on the upper leaf surface, with velvety gray mold underneath.",
-      "causes": [
-        "High humidity and poor ventilation.",
-        "Water splashing on leaves.",
-        "Infected plant material."
-      ]
-    },
-    "Septoria Leaf Spot": {
-      "description":
-          "Fungal disease causing small, circular spots with gray centers and dark borders on leaves, leading to early defoliation.",
-      "causes": [
-        "Warm, wet weather.",
-        "Infected seeds or plants.",
-        "Water splashing from the soil onto leaves."
-      ]
-    },
-    "Bacterial Spot": {
-      "description":
-          "A bacterial disease that causes small, water-soaked spots on leaves and fruits, leading to leaf yellowing and fruit blemishes.",
-      "causes": [
-        "Contaminated seeds or transplants.",
-        "Warm, wet conditions.",
-        "Splashing water from rain or irrigation."
-      ]
-    },
-    "Healthy": {
-      "description":
-          "The plant appears to be healthy with no signs of disease.",
-      "causes": ["N/A"]
     }
   };
 
@@ -184,7 +187,6 @@ class _ResultsState extends State<Results> {
   Future<List<List<List<List<double>>>>> _preprocessImage(
       List<int> imageBytes) async {
     try {
-      // Decode the image from bytes
       img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
       if (image == null) {
         print("Failed to decode image.");
@@ -195,10 +197,8 @@ class _ResultsState extends State<Results> {
                 (_) =>
                     List.generate(256, (_) => List.generate(3, (_) => 0.0))));
       }
-      // Resize the image to the target size (256x256)
       img.Image resizedImage = img.copyResize(image, width: 256, height: 256);
 
-      // Normalize pixel data
       List<List<List<List<double>>>> normalizedImage = List.generate(
         1,
         (batchIndex) => List.generate(
@@ -206,29 +206,50 @@ class _ResultsState extends State<Results> {
           (i) => List.generate(
             256,
             (j) {
-              // Retrieve the RGB value from the pixel
               int rgb = resizedImage.getPixel(j, i) as int;
-
-              // Extract and normalize RGB values from the pixel
               double red = ((rgb >> 16) & 0xFF) / 255.0;
               double green = ((rgb >> 8) & 0xFF) / 255.0;
               double blue = (rgb & 0xFF) / 255.0;
-
-              // Return the normalized RGB values as a list for this pixel
               return [red, green, blue];
             },
           ),
         ),
       );
 
-      return normalizedImage; // Returning the full normalized image with batch dimension
+      return normalizedImage;
     } catch (e) {
       print("Error during image preprocessing: $e");
-      // Return a default image in case of error
       return List.generate(
           1,
           (_) => List.generate(256,
               (_) => List.generate(256, (_) => List.generate(3, (_) => 0.0))));
+    }
+  }
+
+  String getFormattedDiseaseName(String diseaseName) {
+    switch (diseaseName) {
+      case 'Bacterial_spot':
+        return 'Bacterial Spot';
+      case 'Early_blight':
+        return 'Early Blight';
+      case 'Late_blight':
+        return 'Late Blight';
+      case 'Leaf_Mold':
+        return 'Leaf Mold';
+      case 'Septoria_leaf_spot':
+        return 'Septoria Leaf Spot';
+      case 'Spider_Mites_(Two-Spotted_Spider_Mite)':
+        return 'Spider Mites (Two-Spotted Spider Mite)';
+      case 'Target_Spot':
+        return 'Target Spot';
+      case 'Yellow_Leaf_Curl_Virus':
+        return 'Tomato Yellow Leaf Curl Virus';
+      case 'Mosaic_virus':
+        return 'Tomato Mosaic Virus';
+      case 'Healthy':
+        return 'healthy';
+      default:
+        return diseaseName;
     }
   }
 
@@ -244,7 +265,7 @@ class _ResultsState extends State<Results> {
     ];
 
     final String diseaseName = _predictions != null && _predictions!.isNotEmpty
-        ? _predictions![0].toString()
+        ? getFormattedDiseaseName(_predictions![0].toString())
         : defaultDiseaseName;
 
     final String description = diseaseDetails.containsKey(diseaseName)
@@ -266,49 +287,53 @@ class _ResultsState extends State<Results> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              if (_isLoading)
-                const CircularProgressIndicator()
-              else
-                Column(
-                  children: [
-                    Container(
-                      height: 250,
-                      width: 210,
-                      color: Colors.grey[300],
-                      child: widget.imagePath.isNotEmpty
-                          ? Image.file(
-                              File(widget.imagePath),
-                              height: 250,
-                              width: 210,
-                              fit: BoxFit.cover,
-                            )
-                          : const Center(child: Text('No Image Selected')),
-                    ),
-                    Text(
-                      "We’re highly confident that it is:",
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      diseaseName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 25),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Description:",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    Text(description, style: const TextStyle(fontSize: 16)),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Causes:",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    ...causes.map((cause) => Text("- $cause")),
-                  ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Container(
+                  height: 250,
+                  width: 210,
+                  color: Colors.grey[300],
+                  child: widget.imagePath.isNotEmpty
+                      ? Image.file(
+                          File(widget.imagePath),
+                          height: 250,
+                          width: 210,
+                          fit: BoxFit.cover,
+                        )
+                      : const Center(child: Text('No Image Selected')),
                 ),
+              ),
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Prediction: $diseaseName",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 25),
+                          ),
+                          const Text(
+                            "Description:",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          Text(
+                            description,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Causes:",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          ...causes.map((cause) => Text("- $cause")),
+                        ],
+                      ),
+                    ),
               Padding(
                 padding: const EdgeInsets.only(top: 35.0),
                 child: Row(
@@ -342,11 +367,5 @@ class _ResultsState extends State<Results> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _interpreter.close();
-    super.dispose();
   }
 }
