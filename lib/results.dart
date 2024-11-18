@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/treatment.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
