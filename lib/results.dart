@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tmtdiseases/treatment.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -22,16 +23,14 @@ class _ResultsState extends State<Results> {
   late Interpreter _interpreter;
 
   List<String> diseaseLabels = [
-    'Bacterial_spot',
-    'Early_blight',
-    'Late_blight',
-    'Leaf_Mold',
-    'Septoria_leaf_spot',
-    'Spider_Mites_(Two-Spotted_Spider_Mite)',
-    'Target_Spot',
-    'Yellow_Leaf_Curl_Virus',
-    'Mosaic_virus',
-    'Healthy'
+    'Bacterial-spot',
+    'Early-blight',
+    'Healthy',
+    'Late-blight',
+    'Leaf-mold',
+    'Mosaic-virus',
+    'Septoria-leaf-spot',
+    'Yellow-leaf-curl-virus',
   ];
 
   final Map<String, Map<String, dynamic>> diseaseDetails = {
@@ -51,6 +50,14 @@ class _ResultsState extends State<Results> {
         "Overhead watering.",
         "Warm, wet conditions.",
         "Infected plant debris left in the soil."
+      ]
+    },
+    "healthy": {
+      "description": "The plant is healthy and free from any diseases.",
+      "causes": [
+        "No known causes available.",
+        "Keep up the good work!",
+        "Continue to monitor plant health."
       ]
     },
     "Late Blight": {
@@ -80,24 +87,6 @@ class _ResultsState extends State<Results> {
         "Water splashing from the soil onto leaves."
       ]
     },
-    "Spider Mites (Two-Spotted Spider Mite)": {
-      "description":
-          "Tiny pests that cause yellowing, speckled leaves, and fine webbing, eventually leading to leaf drop.",
-      "causes": [
-        "Hot, dry conditions.",
-        "Lack of natural predators.",
-        "Dusty, unclean growing environments."
-      ]
-    },
-    "Target Spot": {
-      "description":
-          "Dark, sunken lesions with concentric rings on leaves and fruits, causing premature leaf drop.",
-      "causes": [
-        "Warm, moist weather.",
-        "Poor sanitation of plant debris.",
-        "Overcrowded planting leads to reduced airflow."
-      ]
-    },
     "Tomato Yellow Leaf Curl Virus": {
       "description":
           "A viral disease causing yellowing and curling of leaves, stunted growth, and reduced fruit production.",
@@ -116,14 +105,6 @@ class _ResultsState extends State<Results> {
         "Seed-borne transmission."
       ]
     },
-    "healthy": {
-      "description": "The plant is healthy and free from any diseases.",
-      "causes": [
-        "No known causes available.",
-        "Keep up the good work!",
-        "Continue to monitor plant health."
-      ]
-    }
   };
 
   @override
@@ -131,6 +112,7 @@ class _ResultsState extends State<Results> {
     super.initState();
     if (widget.imagePath.isNotEmpty) {
       loadModel();
+      print("image is loaded");
     } else {
       setState(() => _isLoading = false);
       print("Image path is empty.");
@@ -140,12 +122,17 @@ class _ResultsState extends State<Results> {
   Future<void> loadModel() async {
     try {
       _interpreter =
-          await Interpreter.fromAsset('assets/model/tomatodiseas.tflite');
+          await Interpreter.fromAsset('assets/model/NewModel.tflite');
       print("Model loaded successfully.");
+      setState(() {
+        _isLoading = false;
+      });
       runModelOnImage();
     } catch (e) {
-      print("Error loading model: $e");
-      setState(() => _isLoading = false);
+      print("Error loading model: ");
+      setState(() {
+        _isLoading = false; // Ensure _isLoading is set to false even on failure
+      });
     }
   }
 
@@ -162,8 +149,8 @@ class _ResultsState extends State<Results> {
         return;
       }
 
-      // Define output with shape [1, 10]
-      var output = List<List<double>>.filled(1, List<double>.filled(10, 0.0));
+      // Define output with shape [1, 8] (assuming 8 classes in the model)
+      var output = List<List<double>>.filled(1, List<double>.filled(8, 0.0));
 
       // Run inference with the input and output buffer
       _interpreter.run(input, output);
@@ -177,52 +164,54 @@ class _ResultsState extends State<Results> {
         _predictions = [predictedLabel];
         _isLoading = false;
       });
+      print("runModelOnImage Prediction: $_predictions");
     } catch (e) {
-      print("Error running inference: $e");
+      print("Error running inference (runModelOnImage): $e");
       setState(() => _isLoading = false);
     }
   }
 
   // Preprocess image to extract RGB values properly
-  Future<List<List<List<List<double>>>>> _preprocessImage(
+  Future<List<List<List<List<int>>>>> _preprocessImage(
       List<int> imageBytes) async {
     try {
+      // Decode the image from bytes
       img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
       if (image == null) {
         print("Failed to decode image.");
-        return List.generate(
-            1,
-            (_) => List.generate(
-                256,
-                (_) =>
-                    List.generate(256, (_) => List.generate(3, (_) => 0.0))));
+        return [
+          List.generate(
+              256, (_) => List.generate(256, (_) => List.generate(3, (_) => 0)))
+        ]; // Add batch dimension
       }
+
+      // Resize the image to the target size (256x256)
       img.Image resizedImage = img.copyResize(image, width: 256, height: 256);
 
-      List<List<List<List<double>>>> normalizedImage = List.generate(
-        1,
-        (batchIndex) => List.generate(
+      // Normalize the image to [0, 1] range for each RGB channel
+      List<List<List<int>>> normalizedImage = List.generate(
+        256,
+        (i) => List.generate(
           256,
-          (i) => List.generate(
-            256,
-            (j) {
-              int rgb = resizedImage.getPixel(j, i) as int;
-              double red = ((rgb >> 16) & 0xFF) / 255.0;
-              double green = ((rgb >> 8) & 0xFF) / 255.0;
-              double blue = (rgb & 0xFF) / 255.0;
-              return [red, green, blue];
-            },
-          ),
+          (j) {
+            img.Pixel pixel = resizedImage.getPixelSafe(j, i);
+
+            final int red = pixel[0] as int; // Extract red channel
+            final int green = pixel[1] as int; // Extract green channel
+            final int blue = pixel[2] as int; // Extract blue channel
+            return [red, green, blue]; // [red, green, blue]
+          },
         ),
       );
 
-      return normalizedImage;
+      // Add batch dimension to the image
+      return [normalizedImage]; // Shape: [1, 256, 256, 3]
     } catch (e) {
       print("Error during image preprocessing: $e");
-      return List.generate(
-          1,
-          (_) => List.generate(256,
-              (_) => List.generate(256, (_) => List.generate(3, (_) => 0.0))));
+      // Return a blank image (black pixels) with a batch dimension on error
+      return [
+        List.generate(256, (_) => List.generate(256, (_) => [0, 0, 0]))
+      ];
     }
   }
 
@@ -238,10 +227,6 @@ class _ResultsState extends State<Results> {
         return 'Leaf Mold';
       case 'Septoria_leaf_spot':
         return 'Septoria Leaf Spot';
-      case 'Spider_Mites_(Two-Spotted_Spider_Mite)':
-        return 'Spider Mites (Two-Spotted Spider Mite)';
-      case 'Target_Spot':
-        return 'Target Spot';
       case 'Yellow_Leaf_Curl_Virus':
         return 'Tomato Yellow Leaf Curl Virus';
       case 'Mosaic_virus':
