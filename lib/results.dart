@@ -156,9 +156,14 @@ class _ResultsState extends State<Results> {
       _interpreter.run(input, output);
 
       // Access the predicted class index from output[0]
-      var predictedClassIndex =
-          output[0].indexOf(output[0].reduce((a, b) => a > b ? a : b));
-      var predictedLabel = diseaseLabels[predictedClassIndex];
+      var maxValue = output[0].reduce((a, b) => a > b ? a : b);
+      var predictedClassIndex = output[0].indexOf(maxValue);
+
+      // Default logic if prediction is not valid
+      String predictedLabel =
+          maxValue > 0.5 && predictedClassIndex < diseaseLabels.length
+              ? diseaseLabels[predictedClassIndex]
+              : "Not detected";
 
       setState(() {
         _predictions = [predictedLabel];
@@ -217,24 +222,24 @@ class _ResultsState extends State<Results> {
 
   String getFormattedDiseaseName(String diseaseName) {
     switch (diseaseName) {
-      case 'Bacterial_spot':
+      case 'Bacterial-spot':
         return 'Bacterial Spot';
-      case 'Early_blight':
+      case 'Early-blight':
         return 'Early Blight';
-      case 'Late_blight':
+      case 'Late-blight':
         return 'Late Blight';
-      case 'Leaf_Mold':
+      case 'Leaf-mold':
         return 'Leaf Mold';
-      case 'Septoria_leaf_spot':
+      case 'Septoria-leaf-spot':
         return 'Septoria Leaf Spot';
-      case 'Yellow_Leaf_Curl_Virus':
+      case 'Yellow-leaf-curl-virus':
         return 'Tomato Yellow Leaf Curl Virus';
-      case 'Mosaic_virus':
+      case 'Mosaic-virus':
         return 'Tomato Mosaic Virus';
       case 'Healthy':
         return 'healthy';
       default:
-        return diseaseName;
+        return diseaseName; // If unrecognized, return as-is.
     }
   }
 
@@ -253,13 +258,11 @@ class _ResultsState extends State<Results> {
         ? getFormattedDiseaseName(_predictions![0].toString())
         : defaultDiseaseName;
 
-    final String description = diseaseDetails.containsKey(diseaseName)
-        ? (diseaseDetails[diseaseName]?['description'] ?? defaultDescription)
-        : defaultDescription;
+    final String description =
+        diseaseDetails[diseaseName]?['description'] ?? defaultDescription;
 
-    final List<String> causes = diseaseDetails.containsKey(diseaseName)
-        ? List<String>.from(
-            diseaseDetails[diseaseName]?['causes'] ?? defaultCauses)
+    final List<String> causes = diseaseDetails[diseaseName]?['causes'] != null
+        ? List<String>.from(diseaseDetails[diseaseName]?['causes'])
         : defaultCauses;
 
     return Scaffold(
