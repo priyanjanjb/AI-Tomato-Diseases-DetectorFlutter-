@@ -18,7 +18,7 @@ class _ChatinterfaceState extends State<Chatinterface> {
   ChatUser geminiUser = ChatUser(
     id: "1",
     firstName: "Plant Guard ChatBot",
-    profileImage: "assets/images/icon.png",
+    profileImage: "assets/image/icon.png",
   );
   @override
   Widget build(BuildContext context) {
