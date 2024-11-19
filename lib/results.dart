@@ -104,6 +104,15 @@ class _ResultsState extends State<Results> {
         "Seed-borne transmission."
       ]
     },
+    "Not detected": {
+      "description":
+          "A viral infection causing mottled or mosaic patterns on leaves, distorted fruit, and stunted growth.",
+      "causes": [
+        "Handling infected plants.",
+        "Contaminated tools or hands.",
+        "Seed-borne transmission."
+      ]
+    },
   };
 
   @override
@@ -234,11 +243,11 @@ class _ResultsState extends State<Results> {
       case 'Yellow-leaf-curl-virus':
         return 'Tomato Yellow Leaf Curl Virus';
       case 'Mosaic-virus':
-        return 'Tomato Mosaic Virus';
+        return 'Mosaic Virus';
       case 'Healthy':
         return 'healthy';
       default:
-        return diseaseName; // If unrecognized, return as-is.
+        return 'Not detected'; // If unrecognized, return as-is.
     }
   }
 

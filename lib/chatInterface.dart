@@ -13,12 +13,11 @@ class _ChatinterfaceState extends State<Chatinterface> {
   final Gemini gemini = Gemini.instance;
 
   List<ChatMessage> messages = [];
-
   ChatUser currentUser = ChatUser(id: "0", firstName: "User");
   ChatUser geminiUser = ChatUser(
     id: "1",
     firstName: "Plant Guard ChatBot",
-    profileImage: "assets/image/icon.png",
+    //profileImage: "assets/image/icon.png",
   );
   @override
   Widget build(BuildContext context) {
