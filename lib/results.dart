@@ -169,10 +169,10 @@ class _ResultsState extends State<Results> {
 
       // Default logic if prediction is not valid
       String predictedLabel =
-          maxValue > 0.5 && predictedClassIndex < diseaseLabels.length
+          maxValue > 0.88 && predictedClassIndex < diseaseLabels.length
               ? diseaseLabels[predictedClassIndex]
               : "Not detected";
-
+      print("Predicted class index: $predictedClassIndex");
       setState(() {
         _predictions = [predictedLabel];
         _isLoading = false;

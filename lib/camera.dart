@@ -126,19 +126,25 @@ class _CameraState extends State<Camera> with WidgetsBindingObserver {
         backgroundColor: Colors.black,
       ),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: Flexible(
-                child: AspectRatio(
-                  aspectRatio: 3 / 4.77, // Maintains the camera aspect ratio
-                  child: CameraPreview(cameraController!),
+        child: Container(
+          color: Colors.black, // Setting background color to black
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: SizedBox(
+                  width: double.infinity, // Adjust width if necessary
+                  height: MediaQuery.of(context).size.height *
+                      0.6, // Example height
+                  child: AspectRatio(
+                    aspectRatio: 3 / 4.77, // Maintains the camera aspect ratio
+                    child: CameraPreview(cameraController!),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(

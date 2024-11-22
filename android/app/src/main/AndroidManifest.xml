@@ -2,13 +2,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.plantguard">
 
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"
     tools:replace="android:maxSdkVersion" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    tools:node="remove" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="PlantGuard"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        android:hardwareAccelerated="true">
         
         <activity
             android:name=".MainActivity"
@@ -31,7 +37,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-
+    
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>

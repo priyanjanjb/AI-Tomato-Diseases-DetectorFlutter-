@@ -1,9 +1,7 @@
 Late Blight
-Target Spot
-Tomato Yellow Leaf Curl Virus
-Tomato Mosaic Virus
+Yellow Leaf Curl Virus
+Mosaic Virus
 Early Blight
-Spider Mites (Two-Spotted Spider Mite)
 Leaf Mold
 Septoria Leaf Spot
 Bacterial Spot
