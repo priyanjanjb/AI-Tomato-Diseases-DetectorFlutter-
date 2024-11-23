@@ -64,7 +64,9 @@ class _ChatinterfaceState extends State<Chatinterface> {
           String response = event.content?.parts?.fold(
                   "", (previous, current) => "$previous ${current.text}") ??
               "";
-          lastMessage.text += response;
+
+          // Remove all asterisks from the bot response
+          lastMessage.text = _removeAsterisks(response);
           setState(
             () {
               messages = [lastMessage!, ...messages];
@@ -74,6 +76,10 @@ class _ChatinterfaceState extends State<Chatinterface> {
           String response = event.content?.parts?.fold(
                   "", (previous, current) => "$previous ${current.text}") ??
               "";
+
+          // Remove all asterisks from the bot response
+          response = _removeAsterisks(response);
+
           ChatMessage message = ChatMessage(
             user: geminiUser,
             createdAt: DateTime.now(),
@@ -87,5 +93,12 @@ class _ChatinterfaceState extends State<Chatinterface> {
     } catch (e) {
       print(e);
     }
+  }
+
+  // Function to remove all asterisks from the text
+  String _removeAsterisks(String text) {
+    // Regex to remove all '*' characters
+    text = text.replaceAll('*', '');
+    return text;
   }
 }
