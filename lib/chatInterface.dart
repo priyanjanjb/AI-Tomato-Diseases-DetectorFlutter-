@@ -17,16 +17,14 @@ class _ChatinterfaceState extends State<Chatinterface> {
   ChatUser geminiUser = ChatUser(
     id: "1",
     firstName: "Plant Guard ChatBot",
-    //profileImage: "assets/image/icon.png",
   );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
-          "Plant Guard ChatBot",
-        ),
+        title: const Text("Plant Guard ChatBot"),
         backgroundColor: const Color.fromRGBO(12, 128, 77, 0.4),
       ),
       body: _buildUI(),
@@ -39,6 +37,13 @@ class _ChatinterfaceState extends State<Chatinterface> {
       currentUser: currentUser,
       onSend: _sendMessage,
       messages: messages,
+      messageOptions: MessageOptions(
+        currentUserContainerColor:
+            const Color.fromRGBO(12, 128, 77, 0.4), // User message color
+        containerColor: Color.fromARGB(0, 39, 195, 201), // Bot message color
+        textColor: Colors.black, // Text color for both
+        currentUserTextColor: Colors.black, // Text color for the user
+      ),
     );
   }
 

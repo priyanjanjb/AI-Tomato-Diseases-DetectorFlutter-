@@ -11,67 +11,55 @@ class Treatment extends StatelessWidget {
       case 'Bacterial Spot':
         return {
           'Conventional': [
-            'Use fungicides containing copper or chlorothalonil.',
-            'Ensure proper plant spacing for air circulation.',
+            'Use copper-based bactericides.',
           ],
           'Organic': [
-            'Apply neem oil or baking soda spray.',
-            'Remove infected leaves promptly.',
+            'Spray with a mixture of copper and hydrated lime; increase plant spacing.',
           ],
         };
       case 'Early Blight':
         return {
           'Conventional': [
-            'Use insecticides to control whiteflies.',
-            'Plant resistant varieties.',
+            'Apply fungicides like mancozeb or azoxystrobin.',
           ],
           'Organic': [
-            'Introduce natural predators like ladybugs.',
-            'Use sticky traps to control whiteflies.',
+            'Spray sulfur-based products or compost tea; prune lower leaves.',
           ],
         };
       case 'healthy':
         return {
           'Conventional': [
-            'Ensure proper fertilization and pest control.',
-            'Practice preventive fungicide application.',
+            'keep the plant healthy.',
           ],
           'Organic': [
-            'Enhance soil health with compost.',
-            'Use companion planting for natural pest deterrence.',
+            'keep the plant healthy.',
           ],
         };
       case 'Late Blight':
         return {
           'Conventional': [
-            'Apply fungicides like mancozeb or chlorothalonil.',
-            'Remove and destroy infected plants.',
+            ' Use fungicides containing chlorothalonil or mancozeb.',
           ],
           'Organic': [
-            'Spray plants with a solution of baking soda and water.',
-            'Rotate crops to prevent recurrence.',
+            'Apply copper-based fungicides or neem oil; ensure good air circulation.',
           ],
         };
       case 'Leaf Mold':
         return {
           'Conventional': [
-            'Apply fungicides such as captan or mancozeb.',
-            'Ensure proper ventilation in greenhouses.',
+            'Apply fungicides like chlorothalonil.',
           ],
           'Organic': [
-            'Use sulfur-based sprays.',
-            'Prune lower leaves to improve airflow.',
+            ' Increase ventilation; use baking soda sprays or milk sprays.',
           ],
         };
       case 'Mosaic Virus':
         return {
           'Conventional': [
-            'Remove and destroy infected plants immediately.',
-            'Use virus-free seeds.',
+            'Remove infected plants; sanitize tools regularly.',
           ],
           'Organic': [
-            'Control aphids with neem oil.',
-            'Promote soil health to enhance plant resistance.',
+            'Use resistant varieties; apply seaweed extract to boost plant immunity.',
           ],
         };
       case 'Septoria Leaf Spot':
@@ -88,12 +76,10 @@ class Treatment extends StatelessWidget {
       case 'Tomato Yellow Leaf Curl Virus':
         return {
           'Conventional': [
-            'Use insecticides to control whiteflies.',
-            'Plant resistant tomato varieties.',
+            'Use insecticides to control whiteflies (e.g., imidacloprid).',
           ],
           'Organic': [
-            'Introduce beneficial insects like ladybugs.',
-            'Use reflective mulches to deter whiteflies.',
+            ' Introduce natural predators (ladybugs) and use yellow sticky traps.',
           ],
         };
       default:
