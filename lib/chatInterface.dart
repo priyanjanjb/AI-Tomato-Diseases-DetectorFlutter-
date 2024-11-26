@@ -71,6 +71,23 @@ class _ChatinterfaceState extends State<Chatinterface> {
       _typingUsers.add(_gptChatUser);
     });
 
+    // Check if the query is related to tomato diseases
+    if (!isRelatedToTomatoDiseases(m.text)) {
+      setState(() {
+        _messages.insert(
+          0,
+          ChatMessage(
+            user: _gptChatUser,
+            createdAt: DateTime.now(),
+            text:
+                "I can only assist with queries about tomato diseases. Please ask something related to that. You must use those keywords: tomato disease, tomato plant, tomato fungus, blight, leaf spot, tomato wilt, tomato pests, tomato virus, tomato",
+          ),
+        );
+        _typingUsers.remove(_gptChatUser);
+      });
+      return;
+    }
+
     // Prepare message history for the API request
     List<Map<String, dynamic>> messagesHistory =
         _messages.reversed.toList().map((msg) {
@@ -119,5 +136,22 @@ class _ChatinterfaceState extends State<Chatinterface> {
     setState(() {
       _typingUsers.remove(_gptChatUser);
     });
+  }
+
+// Function to determine if the message is related to tomato diseases
+  bool isRelatedToTomatoDiseases(String query) {
+    final keywords = [
+      "tomato disease",
+      "tomato plant",
+      "tomato fungus",
+      "blight",
+      "leaf spot",
+      "tomato wilt",
+      "tomato pests",
+      "tomato virus",
+      "tomato"
+    ];
+
+    return keywords.any((keyword) => query.toLowerCase().contains(keyword));
   }
 }
