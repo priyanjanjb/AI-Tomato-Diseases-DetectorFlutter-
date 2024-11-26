@@ -83,7 +83,7 @@ class _ProjectTeamAndMembersState extends State<ProjectTeamAndMembers> {
               const SizedBox(height: 10),
               const Text(
                 "- B.L.P Sandaruwan   - 2019T00466\n"
-                "- V.G.N.T Nlindra    - 2019T00459\n"
+                "- V.G.N.T Nalindra    - 2019T00459\n"
                 '- K.A.S.N Mapalagama - 2019T00453',
                 style: TextStyle(
                   fontSize: 20,

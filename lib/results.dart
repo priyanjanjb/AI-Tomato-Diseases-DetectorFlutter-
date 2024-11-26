@@ -106,11 +106,11 @@ class _ResultsState extends State<Results> {
     },
     "Not detected": {
       "description":
-          "A viral infection causing mottled or mosaic patterns on leaves, distorted fruit, and stunted growth.",
+          "The disease could not be detected. Please try again with a different image.",
       "causes": [
-        "Handling infected plants.",
-        "Contaminated tools or hands.",
-        "Seed-borne transmission."
+        "The image quality may be too low.",
+        "The image may not contain a plant leaf.",
+        "The model may not have been able to detect the disease."
       ]
     },
   };
