@@ -1,6 +1,7 @@
+import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:tmtdiseases/const.dart';
 
 class Chatinterface extends StatefulWidget {
   const Chatinterface({super.key});
@@ -10,95 +11,101 @@ class Chatinterface extends StatefulWidget {
 }
 
 class _ChatinterfaceState extends State<Chatinterface> {
-  final Gemini gemini = Gemini.instance;
+  final _openAI = OpenAI.instance.build(
+      token: OPENAI_API_KEY,
+      baseOption: HttpSetup(
+        receiveTimeout: const Duration(seconds: 5),
+      ),
+      enableLog: true);
 
-  List<ChatMessage> messages = [];
-  ChatUser currentUser = ChatUser(id: "0", firstName: "User");
-  ChatUser geminiUser = ChatUser(
-    id: "1",
-    firstName: "Plant Guard ChatBot",
+  final ChatUser _user = ChatUser(
+    id: '1',
+    firstName: 'User',
+    lastName: '',
   );
+
+  final ChatUser _gptChatUser = ChatUser(
+    id: '2',
+    firstName: 'Plant',
+    lastName: 'Assistant',
+  );
+
+  final List<ChatMessage> _messages = <ChatMessage>[];
+  final List<ChatUser> _typingUsers = <ChatUser>[];
+
+  @override
+  void initState() {
+    super.initState();
+    /*_messages.add(
+      ChatMessage(
+        text: 'Hey!',
+        user: _user,
+        createdAt: DateTime.now(),
+      ),
+    );*/
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Plant Guard ChatBot"),
         backgroundColor: const Color.fromRGBO(12, 128, 77, 0.4),
+        title: const Text(
+          'Plant Guard Assistant',
+          style: TextStyle(
+            color: Color.fromARGB(255, 0, 0, 0),
+          ),
+        ),
       ),
-      body: _buildUI(),
+      body: DashChat(
+        currentUser: _user,
+        messageOptions: const MessageOptions(
+          currentUserContainerColor: Color.fromRGBO(36, 131, 90, 0.4),
+          containerColor: Color.fromRGBO(202, 202, 202, 1),
+          textColor: Color.fromARGB(255, 22, 22, 22),
+        ),
+        onSend: (ChatMessage m) {
+          getChatResponse(m);
+        },
+        messages: _messages,
+        typingUsers: _typingUsers,
+      ),
     );
   }
 
-  Widget _buildUI() {
-    return DashChat(
-      inputOptions: InputOptions(),
-      currentUser: currentUser,
-      onSend: _sendMessage,
-      messages: messages,
-      messageOptions: MessageOptions(
-        currentUserContainerColor:
-            const Color.fromRGBO(12, 128, 77, 0.4), // User message color
-        containerColor: Color.fromARGB(0, 39, 195, 201), // Bot message color
-        textColor: Colors.black, // Text color for both
-        currentUserTextColor: Colors.black, // Text color for the user
-      ),
-    );
-  }
-
-  void _sendMessage(ChatMessage chatMessage) {
+  Future<void> getChatResponse(ChatMessage m) async {
     setState(() {
-      messages = [chatMessage, ...messages];
+      _messages.insert(0, m);
+      _typingUsers.add(_gptChatUser);
     });
-    try {
-      String question = chatMessage.text;
-      gemini
-          .streamGenerateContent(
-        question,
-      )
-          .listen((event) {
-        ChatMessage? lastMessage = messages.firstOrNull;
-        if (lastMessage != null && lastMessage.user == geminiUser) {
-          lastMessage = messages.removeAt(0);
-          String response = event.content?.parts?.fold(
-                  "", (previous, current) => "$previous ${current.text}") ??
-              "";
-
-          // Remove all asterisks from the bot response
-          lastMessage.text = _removeAsterisks(response);
-          setState(
-            () {
-              messages = [lastMessage!, ...messages];
-            },
-          );
-        } else {
-          String response = event.content?.parts?.fold(
-                  "", (previous, current) => "$previous ${current.text}") ??
-              "";
-
-          // Remove all asterisks from the bot response
-          response = _removeAsterisks(response);
-
-          ChatMessage message = ChatMessage(
-            user: geminiUser,
-            createdAt: DateTime.now(),
-            text: response,
-          );
-          setState(() {
-            messages = [message, ...messages];
-          });
-        }
-      });
-    } catch (e) {
-      print(e);
+    List<Map<String, dynamic>> messagesHistory =
+        _messages.reversed.toList().map((m) {
+      if (m.user == _user) {
+        return Messages(role: Role.user, content: m.text).toJson();
+      } else {
+        return Messages(role: Role.assistant, content: m.text).toJson();
+      }
+    }).toList();
+    final request = ChatCompleteText(
+      messages: messagesHistory,
+      maxToken: 200,
+      model: Gpt4oMini2024ChatModel(),
+    );
+    final response = await _openAI.onChatCompletion(request: request);
+    for (var element in response!.choices) {
+      if (element.message != null) {
+        setState(() {
+          _messages.insert(
+              0,
+              ChatMessage(
+                  user: _gptChatUser,
+                  createdAt: DateTime.now(),
+                  text: element.message!.content));
+        });
+      }
     }
-  }
-
-  // Function to remove all asterisks from the text
-  String _removeAsterisks(String text) {
-    // Regex to remove all '*' characters
-    text = text.replaceAll('*', '');
-    return text;
+    setState(() {
+      _typingUsers.remove(_gptChatUser);
+    });
   }
 }

@@ -1,15 +1,27 @@
+import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:tmtdiseases/const.dart';
 import 'package:tmtdiseases/splashScreen.dart';
 
 void main() {
-  Gemini.init(apiKey: GEMINI_API_KEY);
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+late OpenAI openAI;
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    openAI = OpenAI.instance.build(token: OPENAI_API_KEY);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

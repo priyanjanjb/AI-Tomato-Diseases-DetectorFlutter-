@@ -69,7 +69,7 @@ class _ProjectTeamAndMembersState extends State<ProjectTeamAndMembers> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color.fromRGBO(12, 128, 77, 0.8),
+                  color: Color.fromRGBO(12, 128, 77, 0.8),
                 ),
               ),
               const SizedBox(height: 30),
@@ -88,7 +88,7 @@ class _ProjectTeamAndMembersState extends State<ProjectTeamAndMembers> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color.fromRGBO(12, 128, 77, 0.8),
+                  color: Color.fromRGBO(12, 128, 77, 0.8),
                 ),
               ),
             ],

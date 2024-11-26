@@ -169,7 +169,7 @@ class _ResultsState extends State<Results> {
 
       // Default logic if prediction is not valid
       String predictedLabel =
-          maxValue > 0.98 && predictedClassIndex < diseaseLabels.length
+          maxValue > 0.8 && predictedClassIndex < diseaseLabels.length
               ? diseaseLabels[predictedClassIndex]
               : "Not detected";
       print(maxValue);
@@ -193,16 +193,48 @@ class _ResultsState extends State<Results> {
       img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
       if (image == null) {
         print("Failed to decode image.");
-        return [
-          List.generate(
-              256, (_) => List.generate(256, (_) => List.generate(3, (_) => 0)))
-        ]; // Add batch dimension
+        setState(() {
+          _predictions = ["Not detected"];
+        });
+        return [];
       }
 
       // Resize the image to the target size (256x256)
       img.Image resizedImage = img.copyResize(image, width: 256, height: 256);
 
-      // Normalize the image to [0, 1] range for each RGB channel
+      int totalPixels = 256 * 256;
+      int greenPixelCount = 0;
+
+      // Normalize the image and count green pixels
+      for (int y = 0; y < 256; y++) {
+        for (int x = 0; x < 256; x++) {
+          img.Pixel pixel = resizedImage.getPixel(x, y);
+          final int red = pixel[0] as int; // Extract red channel
+          final int green = pixel[1] as int; // Extract green channel
+          final int blue = pixel[2] as int; // Extract blue channel
+
+          // Check if the pixel is predominantly green
+          if (green > red && green > blue) {
+            greenPixelCount++;
+          }
+        }
+      }
+
+      // Calculate green pixel ratio
+      double greenPixelRatio = greenPixelCount / totalPixels;
+      print("Green Pixel Ratio: $greenPixelRatio");
+
+      // If green pixel ratio is below 0.3, terminate processing
+      if (greenPixelRatio < 0.3) {
+        print("Green pixel ratio is too low. Terminating process.");
+        setState(() {
+          _predictions = ["Not detected"];
+          _isLoading = false;
+        });
+        return [];
+      }
+
+      // Prepare normalized image for model inference
       List<List<List<int>>> normalizedImage = List.generate(
         256,
         (i) => List.generate(
@@ -213,19 +245,23 @@ class _ResultsState extends State<Results> {
             final int red = pixel[0] as int; // Extract red channel
             final int green = pixel[1] as int; // Extract green channel
             final int blue = pixel[2] as int; // Extract blue channel
-            return [red, green, blue]; // [red, green, blue]
+            return [
+              red,
+              green,
+              blue
+            ]; // [red, green, blue] // [red, green, blue]
           },
         ),
       );
 
-      // Add batch dimension to the image
       return [normalizedImage]; // Shape: [1, 256, 256, 3]
     } catch (e) {
       print("Error during image preprocessing: $e");
-      // Return a blank image (black pixels) with a batch dimension on error
-      return [
-        List.generate(256, (_) => List.generate(256, (_) => [0, 0, 0]))
-      ];
+      setState(() {
+        _predictions = ["Not detected"];
+        _isLoading = false;
+      });
+      return [];
     }
   }
 
