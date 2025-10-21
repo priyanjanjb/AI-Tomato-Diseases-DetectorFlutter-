@@ -88,32 +88,6 @@ Notebook used: [`MobileNetv2Epoch50.ipynb`](tomato.pdf)
 
 ---
 
-## 📂 Folder Structure
-
-```
-PlantGuard/
-│
-├── assets/
-│   ├── model/
-│   │   └── tomato_disease_model.tflite
-│   ├── images/
-│   └── icons/
-│
-├── lib/
-│   ├── main.dart
-│   ├── screens/
-│   ├── widgets/
-│   ├── services/
-│   └── chatbot/
-│
-├── models/
-│   └── tomato_disease_model.tflite
-│
-├── pubspec.yaml
-└── README.md
-```
-
----
 
 ## 💡 Future Enhancements
 
