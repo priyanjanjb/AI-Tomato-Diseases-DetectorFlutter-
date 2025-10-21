@@ -59,7 +59,7 @@ Notebook used: [`MobileNetv2Epoch50.ipynb`](tomato.pdf)
 
 | Home Page | Capture Photo | Result & Treatment | Chat Interface |
 |------------|---------------|--------------------|----------------|
-| ![Home](homepage.png) | ![Capture](finddiseas.png) | ![Treatment](treatment.png) | ![Chat](chatbot.png) |
+| ![Home](assets/home.png) | ![Capture](assets/finddiseas.png) | ![Treatment](assets/treatment.png) | ![Chat](assets/chatbot.png) |
 
 > 📝 Replace image names (`homepage.png`, `treatment.png`, etc.) with your actual file names.
 
